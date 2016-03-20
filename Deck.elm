@@ -32,6 +32,18 @@ load title author slides =
     Just value -> create title value slides
     Nothing -> create title "" slides
 
+current : Deck -> Int
+current deck =
+  withDefault 0 <| head deck.history
+
+next : Deck -> Int
+next deck =
+  min ((Array.length deck.slides) - 1) <| current deck + 1
+
+prev : Deck -> Int
+prev deck =
+  max 0 <| current deck - 1
+
 update : DeckAction -> Deck -> Deck
 update action deck =
   case action of
@@ -45,10 +57,10 @@ update action deck =
       {deck | slides = push slide deck.slides }
 
     Actions.Forward ->
-      {deck | history = (min (Array.length deck.slides) (withDefault 0 (head deck.history)) + 1) :: deck.history}
+      {deck | history = next deck :: deck.history}
 
     Actions.Backward ->
-      {deck | history = (max (Array.length deck.slides) (withDefault 0 (head deck.history)) - 1) :: deck.history}
+      {deck | history = prev deck :: deck.history}
 
 view : Deck -> Html
 view deck =
@@ -65,6 +77,7 @@ view deck =
       [
         div [] [ text deck.title ]
       , div [] [ text deck.author ]
+      , div [] [ text <| List.foldr (++) "" <| List.map toString deck.history ]
       ]
     , div
       [ classList [
