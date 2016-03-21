@@ -4,8 +4,10 @@ import Array exposing (Array, get, length, push)
 import Html exposing (..)
 import Html.Attributes exposing (classList)
 import Html.Lazy exposing (lazy)
+import Http
+import Json.Decode as Json exposing ((:=))
 import List exposing (head, length)
-import Maybe exposing (withDefault)
+import Maybe exposing (withDefault, Maybe(Just))
 import Regex exposing (replace, regex)
 import String exposing (toLower)
 
@@ -17,20 +19,32 @@ idify : String -> String
 idify title =
   toLower (replace Regex.All (regex "[^a-zA-Z0-9]+") (\_ -> "-") title)
 
-create : String -> String -> (Array Slide) -> Deck
+create : String -> Maybe String -> (Array Slide) -> Deck
 create title author slides =
   { id = idify title
   , title = title
-  , author = author
+  , author = withDefault "" author
   , slides = slides
-  , history = []
+  , history = if Array.length slides > 0 then [0] else []
   }
 
-load : String -> Maybe String -> (Array Slide) -> Deck
-load title author slides =
-  case author of
-    Just value -> create title value slides
-    Nothing -> create title "" slides
+load : String -> Task Http.Error (Deck)
+load title =
+  Http.get decode ("http://0.0.0.0:8000/data/" ++ (idify title) ++ ".json")
+
+decode : JsonDecoder (Deck)
+decode =
+  let deck =
+    Json.object5
+  in
+
+
+
+--load : String -> Maybe String -> (Array Slide) -> Deck
+--load title author slides =
+--  case author of
+--    Just value -> create title value slides
+--    Nothing -> create title (Just "") slides
 
 current : Deck -> Int
 current deck =

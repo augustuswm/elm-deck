@@ -12,7 +12,7 @@ import Types exposing (Deck, Slide)
 
 init : Deck
 init =
-  Deck.create "My New Deck" "amayo"
+  Deck.create "My New Deck" (Just "amayo")
     <| fromList [
         Slide.create "The First Title" (Just "#A Slide Header 1")
       , Slide.create "The Second Title" (Just "#A Slide Header 2")
@@ -42,16 +42,3 @@ traverse =
 main : Signal Html
 main =
   Signal.map Deck.view model
-
---main =
---  Signal.map show <| parseSignal traverse
-
---main =
---  let
---    keyToString key =
---      case key of
---        100 -> "->"
---        97 -> "<-"
---        _ -> ""
---  in
---    Signal.map text <| Signal.map keyToString Keyboard.presses
