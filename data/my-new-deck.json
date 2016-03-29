@@ -1,0 +1,16 @@
+{
+  "id": "my-new-deck",
+  "title": "My New Deck",
+  "author": "Augustus Mayo",
+  "slides": [
+    {
+      "title": "The First Slide of All Time",
+      "body": "#A header for the first slide"
+    },
+    {
+      "title": "The Last Slide Ever Made",
+      "body": "#The last one you will ever see"
+    }
+  ],
+  "history": [0]
+}

@@ -10,6 +10,7 @@ import List exposing (head, length)
 import Maybe exposing (withDefault, Maybe(Just))
 import Regex exposing (replace, regex)
 import String exposing (toLower)
+import Task exposing (Task)
 
 import Types exposing (Deck, Slide)
 import Actions exposing (DeckAction)
@@ -32,19 +33,18 @@ load : String -> Task Http.Error (Deck)
 load title =
   Http.get decode ("http://0.0.0.0:8000/data/" ++ (idify title) ++ ".json")
 
-decode : JsonDecoder (Deck)
+decode : Json.Decoder Deck
 decode =
-  let deck =
-    Json.object5
-  in
-
-
-
---load : String -> Maybe String -> (Array Slide) -> Deck
---load title author slides =
---  case author of
---    Just value -> create title value slides
---    Nothing -> create title (Just "") slides
+  Json.object5 Deck
+    ("id" := Json.string)
+    ("title" := Json.string)
+    ("author" := Json.string)
+    ("slides" := Json.array
+      (Json.object2 Slide
+        ("title" := Json.string)
+        ("body" := Json.string))
+    )
+    ("history" := Json.list Json.int)
 
 current : Deck -> Int
 current deck =

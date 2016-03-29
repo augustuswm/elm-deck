@@ -11085,6 +11085,8 @@ Elm.Deck.make = function (_elm) {
    $Debug = Elm.Debug.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Http = Elm.Http.make(_elm),
+   $Json$Decode = Elm.Json.Decode.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Regex = Elm.Regex.make(_elm),
@@ -11092,6 +11094,7 @@ Elm.Deck.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm),
    $Slide = Elm.Slide.make(_elm),
    $String = Elm.String.make(_elm),
+   $Task = Elm.Task.make(_elm),
    $Types = Elm.Types.make(_elm);
    var _op = {};
    var view = function (deck) {
@@ -11123,6 +11126,18 @@ Elm.Deck.make = function (_elm) {
          case "Forward": return _U.update(deck,{history: A2($List._op["::"],next(deck),deck.history)});
          default: return _U.update(deck,{history: A2($List._op["::"],prev(deck),deck.history)});}
    });
+   var decode = A6($Json$Decode.object5,
+   $Types.Deck,
+   A2($Json$Decode._op[":="],"id",$Json$Decode.string),
+   A2($Json$Decode._op[":="],"title",$Json$Decode.string),
+   A2($Json$Decode._op[":="],"author",$Json$Decode.string),
+   A2($Json$Decode._op[":="],
+   "slides",
+   $Json$Decode.array(A3($Json$Decode.object2,
+   $Types.Slide,
+   A2($Json$Decode._op[":="],"title",$Json$Decode.string),
+   A2($Json$Decode._op[":="],"body",$Json$Decode.string)))),
+   A2($Json$Decode._op[":="],"history",$Json$Decode.list($Json$Decode.$int)));
    var idify = function (title) {
       return $String.toLower(A4($Regex.replace,$Regex.All,$Regex.regex("[^a-zA-Z0-9]+"),function (_p1) {    return "-";},title));
    };
@@ -11133,7 +11148,8 @@ Elm.Deck.make = function (_elm) {
              ,slides: slides
              ,history: _U.cmp($Array.length(slides),0) > 0 ? _U.list([0]) : _U.list([])};
    });
-   return _elm.Deck.values = {_op: _op,idify: idify,create: create,current: current,next: next,prev: prev,update: update,view: view};
+   var load = function (title) {    return A2($Http.get,decode,A2($Basics._op["++"],"http://0.0.0.0:8000/data/",A2($Basics._op["++"],idify(title),".json")));};
+   return _elm.Deck.values = {_op: _op,idify: idify,create: create,load: load,decode: decode,current: current,next: next,prev: prev,update: update,view: view};
 };
 Elm.Set = Elm.Set || {};
 Elm.Set.make = function (_elm) {
