@@ -1,10 +1,10 @@
 module Actions where
 
-import Types exposing (Slide)
+import Types exposing (Slide, Deck)
 
 type DeckAction =
   NoOp
-  | Load String
+  | Load (Deck)
   | AddSlide Slide
   | Forward
   | Backward

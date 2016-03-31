@@ -11148,8 +11148,17 @@ Elm.Deck.make = function (_elm) {
              ,slides: slides
              ,history: _U.cmp($Array.length(slides),0) > 0 ? _U.list([0]) : _U.list([])};
    });
-   var load = function (title) {    return A2($Http.get,decode,A2($Basics._op["++"],"http://0.0.0.0:8000/data/",A2($Basics._op["++"],idify(title),".json")));};
-   return _elm.Deck.values = {_op: _op,idify: idify,create: create,load: load,decode: decode,current: current,next: next,prev: prev,update: update,view: view};
+   var fetch = function (title) {    return A2($Http.get,decode,A2($Basics._op["++"],"http://0.0.0.0:8000/data/",A2($Basics._op["++"],idify(title),".json")));};
+   return _elm.Deck.values = {_op: _op
+                             ,idify: idify
+                             ,create: create
+                             ,fetch: fetch
+                             ,decode: decode
+                             ,current: current
+                             ,next: next
+                             ,prev: prev
+                             ,update: update
+                             ,view: view};
 };
 Elm.Set = Elm.Set || {};
 Elm.Set.make = function (_elm) {
@@ -11323,12 +11332,14 @@ Elm.Main.make = function (_elm) {
    $Debug = Elm.Debug.make(_elm),
    $Deck = Elm.Deck.make(_elm),
    $Html = Elm.Html.make(_elm),
+   $Http = Elm.Http.make(_elm),
    $Keyboard = Elm.Keyboard.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Slide = Elm.Slide.make(_elm),
+   $Task = Elm.Task.make(_elm),
    $Types = Elm.Types.make(_elm);
    var _op = {};
    var traverse = function () {
@@ -11351,5 +11362,11 @@ Elm.Main.make = function (_elm) {
                            ,A2($Slide.create,"The Fifth Title",$Maybe.Just("#A Slide Header 5"))])));
    var model = A3($Signal.foldp,$Deck.update,init,traverse);
    var main = A2($Signal.map,$Deck.view,model);
-   return _elm.Main.values = {_op: _op,init: init,model: model,traverse: traverse,main: main};
+   var actions = $Signal.mailbox($Actions.NoOp);
+   var handle = Elm.Native.Task.make(_elm).perform(A2($Task.andThen,
+   $Deck.fetch("my-new-deck"),
+   function (_p1) {
+      return A2($Signal.send,actions.address,$Actions.Load(_p1));
+   }));
+   return _elm.Main.values = {_op: _op,actions: actions,init: init,model: model,traverse: traverse,main: main};
 };

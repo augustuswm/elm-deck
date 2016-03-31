@@ -1,14 +1,24 @@
 import Array exposing (fromList)
 import Graphics.Element exposing (..)
 import Html exposing (..)
+import Http
 import Keyboard
 import Maybe exposing (Maybe(Just))
 import Signal
+import Task exposing (..)
 
 import Actions exposing (DeckAction (..))
 import Deck exposing (create, view)
 import Slide exposing (create)
 import Types exposing (Deck, Slide)
+
+actions : Signal.Mailbox DeckAction
+actions =
+  Signal.mailbox NoOp
+
+port handle : Task Http.Error ()
+port handle =
+  (Deck.fetch "my-new-deck") `andThen` (Load >> Signal.send actions.address)
 
 init : Deck
 init =
