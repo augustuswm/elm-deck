@@ -1,0 +1,36 @@
+$gutter: 16px;
+$small-gutter: $gutter / 2;
+$xsmall-gutter: $small-gutter / 2;
+$large-gutter: $gutter * 2;
+$xlarge-gutter: $large-gutter * 2;
+$default-slide-background: #fff;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-image: url(../img/black_mamba.jpg);
+}
+
+.deck-wrapper {
+  position: relative;
+  width: 80%;
+  margin: $gutter auto;
+
+  &::before {
+    content: "";
+    width: 100%;
+    padding-top: 56.25%;
+    display: block;
+  }
+}
+
+.deck {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #fff;
+}

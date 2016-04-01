@@ -101,28 +101,31 @@ update action deck =
 
 view : Signal.Address Action -> Deck -> Html
 view address deck =
-  div
-    [ classList [
-        ("deck", True)
-      ]
-    ]
-    [ div
+  div [ classList [ ("deck-wrapper", True) ] ]
+    [
+    div
       [ classList [
-          ("deck-header", True)
+          ("deck", True)
         ]
       ]
-      [
-        div [] [ text deck.title ]
-      , div [] [ text deck.author ]
-      , div [] [ text <| List.foldr (++) "" <| List.map toString deck.history ]
-      ]
-    , div
-      [ classList [
-          ("slide-container", True)
+      [ div
+        [ classList [
+            ("deck-header", True)
+          ]
         ]
-      ]
-      [
-        Component.Slide.view (Array.get (Maybe.withDefault 0 (head deck.history)) deck.slides)
+        [
+          div [] [ text deck.title ]
+        , div [] [ text deck.author ]
+        , div [] [ text <| List.foldr (++) "" <| List.map toString deck.history ]
+        ]
+      , div
+        [ classList [
+            ("slide-container", True)
+          ]
+        ]
+        [
+          Component.Slide.view (Array.get (Maybe.withDefault 0 (head deck.history)) deck.slides)
+        ]
       ]
     ]
 

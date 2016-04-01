@@ -11230,6 +11230,8 @@ Elm.Component.Deck.make = function (_elm) {
    var _op = {};
    var view = F2(function (address,deck) {
       return A2($Html.div,
+      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-wrapper",_1: true}]))]),
+      _U.list([A2($Html.div,
       _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck",_1: true}]))]),
       _U.list([A2($Html.div,
               _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-header",_1: true}]))]),
@@ -11243,7 +11245,7 @@ Elm.Component.Deck.make = function (_elm) {
                       A2($List.map,$Basics.toString,deck.history)))]))]))
               ,A2($Html.div,
               _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "slide-container",_1: true}]))]),
-              _U.list([$Component$Slide.view(A2($Array.get,A2($Maybe.withDefault,0,$List.head(deck.history)),deck.slides))]))]));
+              _U.list([$Component$Slide.view(A2($Array.get,A2($Maybe.withDefault,0,$List.head(deck.history)),deck.slides))]))]))]));
    });
    var current = function (deck) {    return A2($Maybe.withDefault,0,$List.head(deck.history));};
    var next = function (deck) {    return A2($Basics.min,$Array.length(deck.slides) - 1,current(deck) + 1);};
