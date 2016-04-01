@@ -1,41 +1,21 @@
-import Array exposing (fromList)
-import Graphics.Element exposing (..)
-import Html exposing (..)
-import Http
+import Effects exposing (Never)
 import Keyboard
-import Maybe exposing (Maybe(Just))
-import Signal
-import Task exposing (..)
+import StartApp
+import Task
 
-import Actions exposing (DeckAction (..))
-import Deck exposing (create, view)
-import Slide exposing (create)
-import Types exposing (Deck, Slide)
+import Component.Deck exposing (Action (..), init, update, view)
 
-actions : Signal.Mailbox DeckAction
-actions =
-  Signal.mailbox NoOp
+app =
+  StartApp.start
+    { init = init "My New Deck"
+    , update = update
+    , view = view
+    , inputs = [ traverse ]
+    }
 
-port handle : Task Http.Error ()
-port handle =
-  (Deck.fetch "my-new-deck") `andThen` (Load >> Signal.send actions.address)
+-- Signals
 
-init : Deck
-init =
-  Deck.create "My New Deck" (Just "amayo")
-    <| fromList [
-        Slide.create "The First Title" (Just "#A Slide Header 1")
-      , Slide.create "The Second Title" (Just "#A Slide Header 2")
-      , Slide.create "The Third Title" (Just "#A Slide Header 3")
-      , Slide.create "The Fourth Title" (Just "#A Slide Header 4")
-      , Slide.create "The Fifth Title" (Just "#A Slide Header 5")
-      ]
-
-model : Signal Deck
-model =
-  Signal.foldp Deck.update init traverse
-
-traverse : Signal DeckAction
+traverse : Signal Component.Deck.Action
 traverse =
   let
     keyToAction key =
@@ -49,6 +29,9 @@ traverse =
   in
     Signal.map keyToAction Keyboard.presses
 
-main : Signal Html
 main =
-  Signal.map Deck.view model
+  app.html
+
+port tasks : Signal (Task.Task Never ())
+port tasks =
+  app.tasks

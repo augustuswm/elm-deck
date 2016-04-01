@@ -6618,202 +6618,44 @@ Elm.Array.make = function (_elm) {
                               ,foldl: foldl
                               ,foldr: foldr};
 };
-Elm.Native.Effects = {};
-Elm.Native.Effects.make = function(localRuntime) {
-
-	localRuntime.Native = localRuntime.Native || {};
-	localRuntime.Native.Effects = localRuntime.Native.Effects || {};
-	if (localRuntime.Native.Effects.values)
-	{
-		return localRuntime.Native.Effects.values;
-	}
-
-	var Task = Elm.Native.Task.make(localRuntime);
-	var Utils = Elm.Native.Utils.make(localRuntime);
-	var Signal = Elm.Signal.make(localRuntime);
-	var List = Elm.Native.List.make(localRuntime);
-
-
-	// polyfill so things will work even if rAF is not available for some reason
-	var _requestAnimationFrame =
-		typeof requestAnimationFrame !== 'undefined'
-			? requestAnimationFrame
-			: function(cb) { setTimeout(cb, 1000 / 60); }
-			;
-
-
-	// batchedSending and sendCallback implement a small state machine in order
-	// to schedule only one send(time) call per animation frame.
-	//
-	// Invariants:
-	// 1. In the NO_REQUEST state, there is never a scheduled sendCallback.
-	// 2. In the PENDING_REQUEST and EXTRA_REQUEST states, there is always exactly
-	//    one scheduled sendCallback.
-	var NO_REQUEST = 0;
-	var PENDING_REQUEST = 1;
-	var EXTRA_REQUEST = 2;
-	var state = NO_REQUEST;
-	var messageArray = [];
-
-
-	function batchedSending(address, tickMessages)
-	{
-		// insert ticks into the messageArray
-		var foundAddress = false;
-
-		for (var i = messageArray.length; i--; )
-		{
-			if (messageArray[i].address === address)
-			{
-				foundAddress = true;
-				messageArray[i].tickMessages = A3(List.foldl, List.cons, messageArray[i].tickMessages, tickMessages);
-				break;
-			}
-		}
-
-		if (!foundAddress)
-		{
-			messageArray.push({ address: address, tickMessages: tickMessages });
-		}
-
-		// do the appropriate state transition
-		switch (state)
-		{
-			case NO_REQUEST:
-				_requestAnimationFrame(sendCallback);
-				state = PENDING_REQUEST;
-				break;
-			case PENDING_REQUEST:
-				state = PENDING_REQUEST;
-				break;
-			case EXTRA_REQUEST:
-				state = PENDING_REQUEST;
-				break;
-		}
-	}
-
-
-	function sendCallback(time)
-	{
-		switch (state)
-		{
-			case NO_REQUEST:
-				// This state should not be possible. How can there be no
-				// request, yet somehow we are actively fulfilling a
-				// request?
-				throw new Error(
-					'Unexpected send callback.\n' +
-					'Please report this to <https://github.com/evancz/elm-effects/issues>.'
-				);
-
-			case PENDING_REQUEST:
-				// At this point, we do not *know* that another frame is
-				// needed, but we make an extra request to rAF just in
-				// case. It's possible to drop a frame if rAF is called
-				// too late, so we just do it preemptively.
-				_requestAnimationFrame(sendCallback);
-				state = EXTRA_REQUEST;
-
-				// There's also stuff we definitely need to send.
-				send(time);
-				return;
-
-			case EXTRA_REQUEST:
-				// Turns out the extra request was not needed, so we will
-				// stop calling rAF. No reason to call it all the time if
-				// no one needs it.
-				state = NO_REQUEST;
-				return;
-		}
-	}
-
-
-	function send(time)
-	{
-		for (var i = messageArray.length; i--; )
-		{
-			var messages = A3(
-				List.foldl,
-				F2( function(toAction, list) { return List.Cons(toAction(time), list); } ),
-				List.Nil,
-				messageArray[i].tickMessages
-			);
-			Task.perform( A2(Signal.send, messageArray[i].address, messages) );
-		}
-		messageArray = [];
-	}
-
-
-	function requestTickSending(address, tickMessages)
-	{
-		return Task.asyncFunction(function(callback) {
-			batchedSending(address, tickMessages);
-			callback(Task.succeed(Utils.Tuple0));
-		});
-	}
-
-
-	return localRuntime.Native.Effects.values = {
-		requestTickSending: F2(requestTickSending)
-	};
-
-};
-
-Elm.Effects = Elm.Effects || {};
-Elm.Effects.make = function (_elm) {
+Elm.Types = Elm.Types || {};
+Elm.Types.make = function (_elm) {
    "use strict";
-   _elm.Effects = _elm.Effects || {};
-   if (_elm.Effects.values) return _elm.Effects.values;
+   _elm.Types = _elm.Types || {};
+   if (_elm.Types.values) return _elm.Types.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Array = Elm.Array.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var Slide = F2(function (a,b) {    return {title: a,body: b};});
+   var Deck = F5(function (a,b,c,d,e) {    return {id: a,title: b,author: c,slides: d,history: e};});
+   return _elm.Types.values = {_op: _op,Deck: Deck,Slide: Slide};
+};
+Elm.Actions = Elm.Actions || {};
+Elm.Actions.make = function (_elm) {
+   "use strict";
+   _elm.Actions = _elm.Actions || {};
+   if (_elm.Actions.values) return _elm.Actions.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $Native$Effects = Elm.Native.Effects.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $Task = Elm.Task.make(_elm),
-   $Time = Elm.Time.make(_elm);
+   $Types = Elm.Types.make(_elm);
    var _op = {};
-   var ignore = function (task) {    return A2($Task.map,$Basics.always({ctor: "_Tuple0"}),task);};
-   var requestTickSending = $Native$Effects.requestTickSending;
-   var toTaskHelp = F3(function (address,effect,_p0) {
-      var _p1 = _p0;
-      var _p5 = _p1._1;
-      var _p4 = _p1;
-      var _p3 = _p1._0;
-      var _p2 = effect;
-      switch (_p2.ctor)
-      {case "Task": var reporter = A2($Task.andThen,_p2._0,function (answer) {    return A2($Signal.send,address,_U.list([answer]));});
-           return {ctor: "_Tuple2",_0: A2($Task.andThen,_p3,$Basics.always(ignore($Task.spawn(reporter)))),_1: _p5};
-         case "Tick": return {ctor: "_Tuple2",_0: _p3,_1: A2($List._op["::"],_p2._0,_p5)};
-         case "None": return _p4;
-         default: return A3($List.foldl,toTaskHelp(address),_p4,_p2._0);}
-   });
-   var toTask = F2(function (address,effect) {
-      var _p6 = A3(toTaskHelp,address,effect,{ctor: "_Tuple2",_0: $Task.succeed({ctor: "_Tuple0"}),_1: _U.list([])});
-      var combinedTask = _p6._0;
-      var tickMessages = _p6._1;
-      return $List.isEmpty(tickMessages) ? combinedTask : A2($Task.andThen,combinedTask,$Basics.always(A2(requestTickSending,address,tickMessages)));
-   });
-   var Never = function (a) {    return {ctor: "Never",_0: a};};
-   var Batch = function (a) {    return {ctor: "Batch",_0: a};};
-   var batch = Batch;
-   var None = {ctor: "None"};
-   var none = None;
-   var Tick = function (a) {    return {ctor: "Tick",_0: a};};
-   var tick = Tick;
-   var Task = function (a) {    return {ctor: "Task",_0: a};};
-   var task = Task;
-   var map = F2(function (func,effect) {
-      var _p7 = effect;
-      switch (_p7.ctor)
-      {case "Task": return Task(A2($Task.map,func,_p7._0));
-         case "Tick": return Tick(function (_p8) {    return func(_p7._0(_p8));});
-         case "None": return None;
-         default: return Batch(A2($List.map,map(func),_p7._0));}
-   });
-   return _elm.Effects.values = {_op: _op,none: none,task: task,tick: tick,map: map,batch: batch,toTask: toTask};
+   var Backward = {ctor: "Backward"};
+   var Forward = {ctor: "Forward"};
+   var AddSlide = function (a) {    return {ctor: "AddSlide",_0: a};};
+   var Load = function (a) {    return {ctor: "Load",_0: a};};
+   var NoOp = {ctor: "NoOp"};
+   return _elm.Actions.values = {_op: _op,NoOp: NoOp,Load: Load,AddSlide: AddSlide,Forward: Forward,Backward: Backward};
 };
 Elm.Native.Json = {};
 
@@ -10573,6 +10415,28 @@ Elm.Html.Attributes.make = function (_elm) {
                                         ,property: property
                                         ,attribute: attribute};
 };
+Elm.Html = Elm.Html || {};
+Elm.Html.Lazy = Elm.Html.Lazy || {};
+Elm.Html.Lazy.make = function (_elm) {
+   "use strict";
+   _elm.Html = _elm.Html || {};
+   _elm.Html.Lazy = _elm.Html.Lazy || {};
+   if (_elm.Html.Lazy.values) return _elm.Html.Lazy.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $VirtualDom = Elm.VirtualDom.make(_elm);
+   var _op = {};
+   var lazy3 = $VirtualDom.lazy3;
+   var lazy2 = $VirtualDom.lazy2;
+   var lazy = $VirtualDom.lazy;
+   return _elm.Html.Lazy.values = {_op: _op,lazy: lazy,lazy2: lazy2,lazy3: lazy3};
+};
 Elm.Native.Http = {};
 Elm.Native.Http.make = function(localRuntime) {
 
@@ -11182,13 +11046,11 @@ Elm.Markdown.make = function (_elm) {
                                  ,toHtmlWith: toHtmlWith
                                  ,toElementWith: toElementWith};
 };
-Elm.Component = Elm.Component || {};
-Elm.Component.Slide = Elm.Component.Slide || {};
-Elm.Component.Slide.make = function (_elm) {
+Elm.Slide = Elm.Slide || {};
+Elm.Slide.make = function (_elm) {
    "use strict";
-   _elm.Component = _elm.Component || {};
-   _elm.Component.Slide = _elm.Component.Slide || {};
-   if (_elm.Component.Slide.values) return _elm.Component.Slide.values;
+   _elm.Slide = _elm.Slide || {};
+   if (_elm.Slide.values) return _elm.Slide.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
@@ -11197,25 +11059,30 @@ Elm.Component.Slide.make = function (_elm) {
    $Markdown = Elm.Markdown.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
+   $Signal = Elm.Signal.make(_elm),
+   $Types = Elm.Types.make(_elm);
    var _op = {};
    var view = function (slide) {    var _p0 = slide;if (_p0.ctor === "Just") {    return $Markdown.toHtml(_p0._0.body);} else {    return $Html.text("");}};
-   var Slide = F2(function (a,b) {    return {title: a,body: b};});
-   return _elm.Component.Slide.values = {_op: _op,Slide: Slide,view: view};
+   var create = F2(function (title,body) {
+      var _p1 = body;
+      if (_p1.ctor === "Just") {
+            return {title: title,body: _p1._0};
+         } else {
+            return {title: title,body: ""};
+         }
+   });
+   return _elm.Slide.values = {_op: _op,create: create,view: view};
 };
-Elm.Component = Elm.Component || {};
-Elm.Component.Deck = Elm.Component.Deck || {};
-Elm.Component.Deck.make = function (_elm) {
+Elm.Deck = Elm.Deck || {};
+Elm.Deck.make = function (_elm) {
    "use strict";
-   _elm.Component = _elm.Component || {};
-   _elm.Component.Deck = _elm.Component.Deck || {};
-   if (_elm.Component.Deck.values) return _elm.Component.Deck.values;
+   _elm.Deck = _elm.Deck || {};
+   if (_elm.Deck.values) return _elm.Deck.values;
    var _U = Elm.Native.Utils.make(_elm),
+   $Actions = Elm.Actions.make(_elm),
    $Array = Elm.Array.make(_elm),
    $Basics = Elm.Basics.make(_elm),
-   $Component$Slide = Elm.Component.Slide.make(_elm),
    $Debug = Elm.Debug.make(_elm),
-   $Effects = Elm.Effects.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Http = Elm.Http.make(_elm),
@@ -11225,10 +11092,12 @@ Elm.Component.Deck.make = function (_elm) {
    $Regex = Elm.Regex.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
+   $Slide = Elm.Slide.make(_elm),
    $String = Elm.String.make(_elm),
-   $Task = Elm.Task.make(_elm);
+   $Task = Elm.Task.make(_elm),
+   $Types = Elm.Types.make(_elm);
    var _op = {};
-   var view = F2(function (address,deck) {
+   var view = function (deck) {
       return A2($Html.div,
       _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck",_1: true}]))]),
       _U.list([A2($Html.div,
@@ -11243,66 +11112,53 @@ Elm.Component.Deck.make = function (_elm) {
                       A2($List.map,$Basics.toString,deck.history)))]))]))
               ,A2($Html.div,
               _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "slide-container",_1: true}]))]),
-              _U.list([$Component$Slide.view(A2($Array.get,A2($Maybe.withDefault,0,$List.head(deck.history)),deck.slides))]))]));
-   });
+              _U.list([$Slide.view(A2($Array.get,A2($Maybe.withDefault,0,$List.head(deck.history)),deck.slides))]))]));
+   };
    var current = function (deck) {    return A2($Maybe.withDefault,0,$List.head(deck.history));};
    var next = function (deck) {    return A2($Basics.min,$Array.length(deck.slides) - 1,current(deck) + 1);};
    var prev = function (deck) {    return A2($Basics.max,0,current(deck) - 1);};
-   var url = function (idifiedTitle) {    return A2($Basics._op["++"],"http://0.0.0.0:8000/data/",A2($Basics._op["++"],idifiedTitle,".json"));};
-   var idify = function (title) {
-      return $String.toLower(A4($Regex.replace,$Regex.All,$Regex.regex("[^a-zA-Z0-9]+"),function (_p0) {    return "-";},title));
-   };
-   var Backward = {ctor: "Backward"};
-   var Forward = {ctor: "Forward"};
-   var Load = function (a) {    return {ctor: "Load",_0: a};};
-   var Fetch = function (a) {    return {ctor: "Fetch",_0: a};};
-   var New = function (a) {    return {ctor: "New",_0: a};};
-   var NoOp = {ctor: "NoOp"};
-   var Deck = F5(function (a,b,c,d,e) {    return {id: a,title: b,author: c,slides: d,history: e};});
+   var update = F2(function (action,deck) {
+      var _p0 = action;
+      switch (_p0.ctor)
+      {case "NoOp": return deck;
+         case "Load": return deck;
+         case "AddSlide": return _U.update(deck,{slides: A2($Array.push,_p0._0,deck.slides)});
+         case "Forward": return _U.update(deck,{history: A2($List._op["::"],next(deck),deck.history)});
+         default: return _U.update(deck,{history: A2($List._op["::"],prev(deck),deck.history)});}
+   });
    var decode = A6($Json$Decode.object5,
-   Deck,
+   $Types.Deck,
    A2($Json$Decode._op[":="],"id",$Json$Decode.string),
    A2($Json$Decode._op[":="],"title",$Json$Decode.string),
    A2($Json$Decode._op[":="],"author",$Json$Decode.string),
    A2($Json$Decode._op[":="],
    "slides",
    $Json$Decode.array(A3($Json$Decode.object2,
-   $Component$Slide.Slide,
+   $Types.Slide,
    A2($Json$Decode._op[":="],"title",$Json$Decode.string),
    A2($Json$Decode._op[":="],"body",$Json$Decode.string)))),
    A2($Json$Decode._op[":="],"history",$Json$Decode.list($Json$Decode.$int)));
-   var load = function (idifiedTitle) {    return $Effects.task(A2($Task.map,Load,$Task.toMaybe(A2($Http.get,decode,url(idifiedTitle)))));};
-   var init = function (title) {
-      return {ctor: "_Tuple2",_0: A5(Deck,idify(title),title,"",$Array.fromList(_U.list([])),_U.list([])),_1: load(idify(title))};
+   var idify = function (title) {
+      return $String.toLower(A4($Regex.replace,$Regex.All,$Regex.regex("[^a-zA-Z0-9]+"),function (_p1) {    return "-";},title));
    };
-   var update = F2(function (action,deck) {
-      var _p1 = action;
-      switch (_p1.ctor)
-      {case "NoOp": return {ctor: "_Tuple2",_0: deck,_1: $Effects.none};
-         case "New": return init(_p1._0);
-         case "Fetch": return {ctor: "_Tuple2",_0: deck,_1: load(idify(_p1._0))};
-         case "Load": return {ctor: "_Tuple2",_0: A2($Maybe.withDefault,deck,_p1._0),_1: $Effects.none};
-         case "Forward": return {ctor: "_Tuple2",_0: _U.update(deck,{history: A2($List._op["::"],next(deck),deck.history)}),_1: $Effects.none};
-         default: return {ctor: "_Tuple2",_0: _U.update(deck,{history: A2($List._op["::"],prev(deck),deck.history)}),_1: $Effects.none};}
+   var create = F3(function (title,author,slides) {
+      return {id: idify(title)
+             ,title: title
+             ,author: A2($Maybe.withDefault,"",author)
+             ,slides: slides
+             ,history: _U.cmp($Array.length(slides),0) > 0 ? _U.list([0]) : _U.list([])};
    });
-   return _elm.Component.Deck.values = {_op: _op
-                                       ,Deck: Deck
-                                       ,NoOp: NoOp
-                                       ,New: New
-                                       ,Fetch: Fetch
-                                       ,Load: Load
-                                       ,Forward: Forward
-                                       ,Backward: Backward
-                                       ,idify: idify
-                                       ,url: url
-                                       ,current: current
-                                       ,next: next
-                                       ,prev: prev
-                                       ,init: init
-                                       ,update: update
-                                       ,view: view
-                                       ,load: load
-                                       ,decode: decode};
+   var fetch = function (title) {    return A2($Http.get,decode,A2($Basics._op["++"],"http://0.0.0.0:8000/data/",A2($Basics._op["++"],idify(title),".json")));};
+   return _elm.Deck.values = {_op: _op
+                             ,idify: idify
+                             ,create: create
+                             ,fetch: fetch
+                             ,decode: decode
+                             ,current: current
+                             ,next: next
+                             ,prev: prev
+                             ,update: update
+                             ,view: view};
 };
 Elm.Set = Elm.Set || {};
 Elm.Set.make = function (_elm) {
@@ -11464,75 +11320,53 @@ Elm.Keyboard.make = function (_elm) {
                                  ,keysDown: keysDown
                                  ,presses: presses};
 };
-Elm.StartApp = Elm.StartApp || {};
-Elm.StartApp.make = function (_elm) {
-   "use strict";
-   _elm.StartApp = _elm.StartApp || {};
-   if (_elm.StartApp.values) return _elm.StartApp.values;
-   var _U = Elm.Native.Utils.make(_elm),
-   $Basics = Elm.Basics.make(_elm),
-   $Debug = Elm.Debug.make(_elm),
-   $Effects = Elm.Effects.make(_elm),
-   $Html = Elm.Html.make(_elm),
-   $List = Elm.List.make(_elm),
-   $Maybe = Elm.Maybe.make(_elm),
-   $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm),
-   $Task = Elm.Task.make(_elm);
-   var _op = {};
-   var start = function (config) {
-      var updateStep = F2(function (action,_p0) {
-         var _p1 = _p0;
-         var _p2 = A2(config.update,action,_p1._0);
-         var newModel = _p2._0;
-         var additionalEffects = _p2._1;
-         return {ctor: "_Tuple2",_0: newModel,_1: $Effects.batch(_U.list([_p1._1,additionalEffects]))};
-      });
-      var update = F2(function (actions,_p3) {    var _p4 = _p3;return A3($List.foldl,updateStep,{ctor: "_Tuple2",_0: _p4._0,_1: $Effects.none},actions);});
-      var messages = $Signal.mailbox(_U.list([]));
-      var singleton = function (action) {    return _U.list([action]);};
-      var address = A2($Signal.forwardTo,messages.address,singleton);
-      var inputs = $Signal.mergeMany(A2($List._op["::"],messages.signal,A2($List.map,$Signal.map(singleton),config.inputs)));
-      var effectsAndModel = A3($Signal.foldp,update,config.init,inputs);
-      var model = A2($Signal.map,$Basics.fst,effectsAndModel);
-      return {html: A2($Signal.map,config.view(address),model)
-             ,model: model
-             ,tasks: A2($Signal.map,function (_p5) {    return A2($Effects.toTask,messages.address,$Basics.snd(_p5));},effectsAndModel)};
-   };
-   var App = F3(function (a,b,c) {    return {html: a,model: b,tasks: c};});
-   var Config = F4(function (a,b,c,d) {    return {init: a,update: b,view: c,inputs: d};});
-   return _elm.StartApp.values = {_op: _op,start: start,Config: Config,App: App};
-};
 Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
    "use strict";
    _elm.Main = _elm.Main || {};
    if (_elm.Main.values) return _elm.Main.values;
    var _U = Elm.Native.Utils.make(_elm),
+   $Actions = Elm.Actions.make(_elm),
+   $Array = Elm.Array.make(_elm),
    $Basics = Elm.Basics.make(_elm),
-   $Component$Deck = Elm.Component.Deck.make(_elm),
    $Debug = Elm.Debug.make(_elm),
-   $Effects = Elm.Effects.make(_elm),
+   $Deck = Elm.Deck.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Http = Elm.Http.make(_elm),
    $Keyboard = Elm.Keyboard.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $StartApp = Elm.StartApp.make(_elm),
-   $Task = Elm.Task.make(_elm);
+   $Slide = Elm.Slide.make(_elm),
+   $Task = Elm.Task.make(_elm),
+   $Types = Elm.Types.make(_elm);
    var _op = {};
    var traverse = function () {
       var keyToAction = function (key) {
          var _p0 = key;
          switch (_p0)
-         {case 100: return $Component$Deck.Forward;
-            case 97: return $Component$Deck.Backward;
-            default: return $Component$Deck.NoOp;}
+         {case 100: return $Actions.Forward;
+            case 97: return $Actions.Backward;
+            default: return $Actions.NoOp;}
       };
       return A2($Signal.map,keyToAction,$Keyboard.presses);
    }();
-   var app = $StartApp.start({init: $Component$Deck.init("My New Deck"),update: $Component$Deck.update,view: $Component$Deck.view,inputs: _U.list([traverse])});
-   var main = app.html;
-   var tasks = Elm.Native.Task.make(_elm).performSignal("tasks",app.tasks);
-   return _elm.Main.values = {_op: _op,app: app,traverse: traverse,main: main};
+   var init = A3($Deck.create,
+   "My New Deck",
+   $Maybe.Just("amayo"),
+   $Array.fromList(_U.list([A2($Slide.create,"The First Title",$Maybe.Just("#A Slide Header 1"))
+                           ,A2($Slide.create,"The Second Title",$Maybe.Just("#A Slide Header 2"))
+                           ,A2($Slide.create,"The Third Title",$Maybe.Just("#A Slide Header 3"))
+                           ,A2($Slide.create,"The Fourth Title",$Maybe.Just("#A Slide Header 4"))
+                           ,A2($Slide.create,"The Fifth Title",$Maybe.Just("#A Slide Header 5"))])));
+   var model = A3($Signal.foldp,$Deck.update,init,traverse);
+   var main = A2($Signal.map,$Deck.view,model);
+   var actions = $Signal.mailbox($Actions.NoOp);
+   var handle = Elm.Native.Task.make(_elm).perform(A2($Task.andThen,
+   $Deck.fetch("my-new-deck"),
+   function (_p1) {
+      return A2($Signal.send,actions.address,$Actions.Load(_p1));
+   }));
+   return _elm.Main.values = {_op: _op,actions: actions,init: init,model: model,traverse: traverse,main: main};
 };
