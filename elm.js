@@ -11228,9 +11228,11 @@ Elm.Component.Deck.make = function (_elm) {
    $String = Elm.String.make(_elm),
    $Task = Elm.Task.make(_elm);
    var _op = {};
-   var view = F2(function (address,deck) {
+   var view = function (deck) {
       return A2($Html.div,
       _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-wrapper",_1: true}]))]),
+      _U.list([A2($Html.div,
+      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-border",_1: true}]))]),
       _U.list([A2($Html.div,
       _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck",_1: true}]))]),
       _U.list([A2($Html.div,
@@ -11245,8 +11247,8 @@ Elm.Component.Deck.make = function (_elm) {
                       A2($List.map,$Basics.toString,deck.history)))]))]))
               ,A2($Html.div,
               _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "slide-container",_1: true}]))]),
-              _U.list([$Component$Slide.view(A2($Array.get,A2($Maybe.withDefault,0,$List.head(deck.history)),deck.slides))]))]))]));
-   });
+              _U.list([$Component$Slide.view(A2($Array.get,A2($Maybe.withDefault,0,$List.head(deck.history)),deck.slides))]))]))]))]));
+   };
    var current = function (deck) {    return A2($Maybe.withDefault,0,$List.head(deck.history));};
    var next = function (deck) {    return A2($Basics.min,$Array.length(deck.slides) - 1,current(deck) + 1);};
    var prev = function (deck) {    return A2($Basics.max,0,current(deck) - 1);};
@@ -11305,6 +11307,21 @@ Elm.Component.Deck.make = function (_elm) {
                                        ,view: view
                                        ,load: load
                                        ,decode: decode};
+};
+Elm.ElmDeck = Elm.ElmDeck || {};
+Elm.ElmDeck.make = function (_elm) {
+   "use strict";
+   _elm.ElmDeck = _elm.ElmDeck || {};
+   if (_elm.ElmDeck.values) return _elm.ElmDeck.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   return _elm.ElmDeck.values = {_op: _op};
 };
 Elm.Set = Elm.Set || {};
 Elm.Set.make = function (_elm) {
@@ -11515,6 +11532,9 @@ Elm.Main.make = function (_elm) {
    $Component$Deck = Elm.Component.Deck.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Effects = Elm.Effects.make(_elm),
+   $ElmDeck = Elm.ElmDeck.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Keyboard = Elm.Keyboard.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
@@ -11523,18 +11543,84 @@ Elm.Main.make = function (_elm) {
    $StartApp = Elm.StartApp.make(_elm),
    $Task = Elm.Task.make(_elm);
    var _op = {};
+   var view = F2(function (address,state) {
+      return A2($Html.div,
+      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "app-container",_1: true}]))]),
+      _U.list([$Component$Deck.view(state.deck)
+              ,A2($Html.ul,
+              _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-controls",_1: true}]))]),
+              _U.list([A2($Html.li,
+                      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control",_1: true}]))]),
+                      _U.list([A2($Html.a,
+                      _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-edit",_1: true}]))]),
+                      _U.list([$Html.text("Edit ")
+                              ,A2($Html.i,_U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-pencil",_1: true}]))]),_U.list([]))]))]))
+                      ,A2($Html.li,
+                      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control",_1: true}]))]),
+                      _U.list([A2($Html.a,
+                      _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-edit",_1: true}]))]),
+                      _U.list([$Html.text("Fullscreen ")
+                              ,A2($Html.i,
+                              _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-arrows-alt",_1: true}]))]),
+                              _U.list([]))]))]))]))]));
+   });
+   var SetEditing = function (a) {    return {ctor: "SetEditing",_0: a};};
+   var SetFullscreen = function (a) {    return {ctor: "SetFullscreen",_0: a};};
+   var Backward = {ctor: "Backward"};
+   var Forward = {ctor: "Forward"};
+   var LoadDeck = function (a) {    return {ctor: "LoadDeck",_0: a};};
+   var NoOp = {ctor: "NoOp"};
+   var generalizeDeckAction = function (action) {
+      var _p0 = action;
+      if (_p0.ctor === "Load" && _p0._0.ctor === "Just") {
+            return LoadDeck(_p0._0._0);
+         } else {
+            return NoOp;
+         }
+   };
+   var update = F2(function (action,state) {
+      var _p1 = action;
+      switch (_p1.ctor)
+      {case "NoOp": return {ctor: "_Tuple2",_0: state,_1: $Effects.none};
+         case "LoadDeck": return {ctor: "_Tuple2",_0: _U.update(state,{deck: _p1._0}),_1: $Effects.none};
+         case "Forward": var _p2 = A2($Component$Deck.update,$Component$Deck.Forward,state.deck);
+           var deck = _p2._0;
+           var effect = _p2._1;
+           return {ctor: "_Tuple2",_0: _U.update(state,{deck: deck}),_1: A2($Effects.map,generalizeDeckAction,effect)};
+         case "Backward": var _p3 = A2($Component$Deck.update,$Component$Deck.Backward,state.deck);
+           var deck = _p3._0;
+           var effect = _p3._1;
+           return {ctor: "_Tuple2",_0: _U.update(state,{deck: deck}),_1: A2($Effects.map,generalizeDeckAction,effect)};
+         case "SetFullscreen": return {ctor: "_Tuple2",_0: _U.update(state,{fullscreen: _p1._0}),_1: $Effects.none};
+         default: return {ctor: "_Tuple2",_0: _U.update(state,{editing: _p1._0}),_1: $Effects.none};}
+   });
    var traverse = function () {
-      var keyToAction = function (key) {
-         var _p0 = key;
-         switch (_p0)
-         {case 100: return $Component$Deck.Forward;
-            case 97: return $Component$Deck.Backward;
-            default: return $Component$Deck.NoOp;}
-      };
+      var keyToAction = function (key) {    var _p4 = key;switch (_p4) {case 100: return Forward;case 97: return Backward;default: return NoOp;}};
       return A2($Signal.map,keyToAction,$Keyboard.presses);
    }();
-   var app = $StartApp.start({init: $Component$Deck.init("My New Deck"),update: $Component$Deck.update,view: $Component$Deck.view,inputs: _U.list([traverse])});
+   var State = F3(function (a,b,c) {    return {deck: a,fullscreen: b,editing: c};});
+   var init = function () {
+      var _p5 = $Component$Deck.init("My New Deck");
+      var deck = _p5._0;
+      var effect = _p5._1;
+      return {ctor: "_Tuple2",_0: A3(State,deck,false,false),_1: A2($Effects.map,generalizeDeckAction,effect)};
+   }();
+   var app = $StartApp.start({init: init,update: update,view: view,inputs: _U.list([traverse])});
    var main = app.html;
    var tasks = Elm.Native.Task.make(_elm).performSignal("tasks",app.tasks);
-   return _elm.Main.values = {_op: _op,app: app,traverse: traverse,main: main};
+   return _elm.Main.values = {_op: _op
+                             ,State: State
+                             ,NoOp: NoOp
+                             ,LoadDeck: LoadDeck
+                             ,Forward: Forward
+                             ,Backward: Backward
+                             ,SetFullscreen: SetFullscreen
+                             ,SetEditing: SetEditing
+                             ,generalizeDeckAction: generalizeDeckAction
+                             ,init: init
+                             ,update: update
+                             ,view: view
+                             ,app: app
+                             ,main: main
+                             ,traverse: traverse};
 };

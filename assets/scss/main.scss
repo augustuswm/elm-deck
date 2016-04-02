@@ -3,7 +3,17 @@ $small-gutter: $gutter / 2;
 $xsmall-gutter: $small-gutter / 2;
 $large-gutter: $gutter * 2;
 $xlarge-gutter: $large-gutter * 2;
-$default-slide-background: #fff;
+
+$base-color: rgba(255, 255, 255, 1);
+$interaction-color: rgba(246, 50, 73, 1);
+
+$hover-color: $interaction-color;
+$active-color: darken($hover-color, 15%);
+
+$slide-background-color: $base-color;
+$border-color: transparentize($slide-background-color, 0.9);
+
+$button-color: $border-color;
 
 * {
   box-sizing: border-box;
@@ -13,10 +23,30 @@ body {
   background-image: url(../img/black_mamba.jpg);
 }
 
+a {
+  padding: $small-gutter;
+  background-color: $button-color;
+  border: 0;
+  color: $slide-background-color;
+  display: inline-block;
+  transition: color;
+
+
+  &:hover {
+    background-color: $hover-color;
+  }
+
+  &:active {
+    background-color: $active-color;
+  }
+}
+
 .deck-wrapper {
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 80%;
-  margin: $gutter auto;
+  transform: translate(-50%, -50%);
 
   &::before {
     content: "";
@@ -26,11 +56,42 @@ body {
   }
 }
 
+.deck-border {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border: $gutter solid $border-color;
+  overflow: hidden;
+}
+
 .deck {
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: #fff;
+  padding: $large-gutter;
+  background-color: $slide-background-color;
+}
+
+.sub-controls {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 80%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: translate(-50%, 0);
+}
+
+.sub-control {
+  float: right;
+  margin: 0 $small-gutter;
+  
+  &:last-child {
+    margin-right: 0;
+  }
 }
