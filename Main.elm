@@ -1,29 +1,37 @@
+module Main where
+
+import Debug exposing (..)
 import Effects exposing (..)
 import Html exposing (..)
-import Html.Attributes exposing (classList, href)
+import Html.Attributes exposing (classList, href, title)
 import Keyboard
 import Maybe
 import StartApp
 import Task
 
 import Component.Deck exposing (Deck)
+import Component.Editor exposing (Editor)
+import Component.Slide
+import Component.Tools exposing (Tools)
 import ElmDeck exposing (..)
 
 -- Model
 
 type alias State =
   { deck : Deck
+  , editor : Editor
   , fullscreen : FullscreenState
-  , editing : EditingState
   }
+
+-- Actions
 
 type Action =
   NoOp
   | LoadDeck Deck
-  | Forward
-  | Backward
   | SetFullscreen FullscreenState
-  | SetEditing EditingState
+  | DeckAction Component.Deck.Action
+  | SlideAction Component.Slide.Action
+  | EditorAction Component.Editor.Action
 
 -- Utilities
 generalizeDeckAction : Component.Deck.Action -> Action
@@ -37,8 +45,9 @@ init : (State, Effects Action)
 init =
   let
     (deck, effect) = Component.Deck.init "My New Deck"
+    editor = Editor False False
   in
-    ( State deck False False
+    ( State deck editor False
     , Effects.map generalizeDeckAction effect
     )
 
@@ -47,63 +56,68 @@ init =
 update : Action -> State -> (State, Effects Action)
 update action state =
   case action of
-    NoOp -> 
-      ( state
-      , Effects.none
-      )
+    NoOp -> ( state, Effects.none )
 
     LoadDeck deck ->
-      ( { state | deck = deck }
-      , Effects.none
-      )
-
-    Forward ->
-      let
-        (deck, effect) = Component.Deck.update Component.Deck.Forward state.deck
-      in
-        ( { state | deck = deck }
-        , Effects.map generalizeDeckAction effect
-        )
-
-    Backward ->
-      let
-        (deck, effect) = Component.Deck.update Component.Deck.Backward state.deck
-      in
-        ( { state | deck = deck }
-        , Effects.map generalizeDeckAction effect
-        )
+      ( { state | deck = deck }, Effects.none )
 
     SetFullscreen isEnabled ->
-      ( { state | fullscreen = isEnabled }
-      , Effects.none
-      )
+      ( { state | fullscreen = isEnabled }, Effects.none )
 
-    SetEditing isEnabled->
-      ( { state | editing = isEnabled}
-      , Effects.none
-      )
+    DeckAction deckAction ->
+      if state.editor.focused == False then
+        let
+          (deck, effect) = Component.Deck.update deckAction state.deck
+        in
+          ( { state | deck = deck }
+          , Effects.map generalizeDeckAction effect
+          )
+      else
+        ( state, Effects.none )
+
+    SlideAction slideAction ->
+      let
+        (deck, effect) = Component.Deck.update (Component.Deck.SlideAction slideAction) state.deck
+      in
+        ( { state | deck = deck }
+        , Effects.map generalizeDeckAction effect
+        )
+
+    EditorAction editorAction ->
+      case editorAction of
+        Component.Editor.UpdateTitle title ->
+          update (SlideAction <| Component.Slide.UpdateTitle title) state
+
+        Component.Editor.UpdateBody title ->
+          update (SlideAction <| Component.Slide.UpdateBody title) state
+
+        _ ->
+          let
+            (editor, editorAction) = Component.Editor.update editorAction state.editor
+          in
+            ( { state | editor = editor }
+            , Effects.none
+            ) 
 
 -- View
 
 view : Signal.Address Action -> State -> Html
 view address state =
-  div [ classList [ ("app-container", True) ] ]
-  [ Component.Deck.view state.deck
-  , ul [ classList [ ("sub-controls", True) ] ]
-    [ li [ classList [ ("sub-control", True) ] ]
-      [ a [ href "#", classList [ ("sub-control-edit", True) ] ]
-        [ text "Edit "
-        , i [ classList [ ("fa fa-pencil", True) ] ] []
-        ]
-      ]
-    , li [ classList [ ("sub-control", True) ] ]
-      [ a [ href "#", classList [ ("sub-control-edit", True) ] ]
-        [ text "Fullscreen "
-        , i [ classList [ ("fa fa-arrows-alt", True) ] ] []
-        ]
-      ]
+  let
+    deck = Component.Deck.view (state.editor.editing, state.deck)
+    editor = Component.Editor.view (Signal.forwardTo address EditorAction) (state.editor, state.deck)
+    tools = [
+      Component.Tools.Add []
+    , Component.Tools.Edit []
+    , Component.Tools.Fullscreen []
     ]
-  ]
+  in
+    div [ classList [ ("app-container", True) ] ]
+    [ editor
+    , deck
+    , div [ classList [ ("sub-controls-wrapper", True) ] ]
+      [ (Component.Tools.view tools)]
+    ]
 
 -- Runner
 
@@ -125,12 +139,16 @@ traverse =
   let
     keyToAction key =
       case key of
-        100 ->
-          Forward
         97 ->
-          Backward
+          DeckAction Component.Deck.Backward
+        100 ->
+          DeckAction Component.Deck.Forward
+        101 ->
+          EditorAction Component.Editor.ToggleEditing
+        115 ->
+          DeckAction Component.Deck.AddSlide
         _ ->
-          NoOp
+          DeckAction Component.Deck.NoOp
   in
     Signal.map keyToAction Keyboard.presses
 

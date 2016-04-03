@@ -1,6 +1,6 @@
 module Component.Deck where
 
-import Array exposing (Array, fromList)
+import Array exposing (Array, append, fromList, get, push, slice)
 import Effects exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (classList)
@@ -13,6 +13,8 @@ import String exposing (toLower)
 import Task
 
 import Component.Slide exposing (Slide)
+import Component.Tools exposing(Tools)
+import ElmDeck exposing (..)
 
 -- Model
 
@@ -31,8 +33,10 @@ type Action =
   | New String
   | Fetch String
   | Load (Maybe Deck)
+  | AddSlide
   | Forward
   | Backward
+  | SlideAction Component.Slide.Action
 
 -- Utilities
 
@@ -66,6 +70,10 @@ init title =
 
 -- Update
 
+insertBlankSlide : Int -> Array Slide -> Array Slide
+insertBlankSlide n slides =
+  append (push (Slide "" "") <| slice 0 n slides) <| slice n (Array.length slides) slides
+
 update : Action -> Deck -> (Deck, Effects Action)
 update action deck =
   case action of
@@ -87,6 +95,17 @@ update action deck =
       , Effects.none
       )
 
+    AddSlide ->
+      let
+        newSlides = insertBlankSlide (next deck) deck.slides
+      in  
+        ( {deck
+          | slides = newSlides
+          , history = next deck :: deck.history
+          }
+        , Effects.none
+        )
+
     Forward ->
       ( {deck | history = next deck :: deck.history}
       , Effects.none
@@ -97,28 +116,41 @@ update action deck =
       , Effects.none
       )
 
+    SlideAction slideAction ->
+      let
+        currentPos = Maybe.withDefault 0 <| head deck.history
+        newSlides = Array.set currentPos (Component.Slide.update slideAction (get currentPos deck.slides)) deck.slides
+      in
+        ( { deck | slides = newSlides }
+        , Effects.none
+        )
+
 -- View
 
-view : Deck -> Html
-view deck =
-  div [ classList [ ("deck-wrapper", True) ] ]
-  [
-    div [ classList [ ("deck-border", True) ] ]
-    [
-      div [ classList [ ("deck", True) ] ]
-      [ div [ classList [ ("deck-header", True) ] ]
-        [
-          div [] [ text deck.title ]
-        , div [] [ text deck.author ]
-        , div [] [ text <| List.foldr (++) "" <| List.map toString deck.history ]
-        ]
-      , div [ classList [ ("slide-container", True) ] ]
-        [
-          Component.Slide.view (Array.get (Maybe.withDefault 0 (head deck.history)) deck.slides)
+view : (EditingState, Deck) -> Html
+view (editing, deck) =
+  let
+    tools = [
+      Component.Tools.Add []
+    , Component.Tools.Edit []
+    , Component.Tools.Fullscreen []
+    ]
+  in
+    div [ classList [ ("deck-wrapper", True), ("is-editing", editing) ] ]
+    [ div [ classList [ ("deck-border", True) ] ]
+      [ div [ classList [ ("deck", True) ] ]
+        [ div [ classList [ ("deck-header", True) ] ]
+          [ div [] [ text deck.title ]
+          , div [] [ text deck.author ]
+          , div [] [ text <| List.foldr (++) "" <| List.map toString deck.history ]
+          ]
+        , div [ classList [ ("slide-container", True) ] ]
+          [ Component.Slide.view (Array.get (Maybe.withDefault 0 (head deck.history)) deck.slides) ]
         ]
       ]
+    , div [ classList [ ("deck-tools", True)] ]
+      [ (Component.Tools.view tools) ]
     ]
-  ]
 
 -- Effects
 

@@ -5,28 +5,67 @@ body {
   background-image: url(../img/black_mamba.jpg); }
 
 a {
-  padding: 8px;
+  padding: 8px 16px;
   background-color: rgba(255, 255, 255, 0.1);
   border: 0;
   color: white;
   display: inline-block;
-  transition: color; }
+  text-decoration: none;
+  transition: background-color;
+  transition-duration: 300ms;
+  transition-timing-function: ease; }
   a:hover {
     background-color: #f63249; }
   a:active {
     background-color: #d20921; }
 
+input {
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 8px;
+  background: bottom left linear-gradient(#a7a7a7, #a7a7a7) no-repeat, bottom center linear-gradient(#a7a7a7, #a7a7a7) repeat-x, bottom right linear-gradient(#a7a7a7, #a7a7a7) no-repeat;
+  background-size: 1px 6px, 1px 1px, 1px 6px;
+  border: 0;
+  outline: 0;
+  display: block;
+  transition: background;
+  transition-duration: 300ms;
+  transition-timing-function: ease; }
+  input:focus {
+    background: bottom left linear-gradient(#f63249, #f63249) no-repeat, bottom center linear-gradient(#f63249, #f63249) repeat-x, bottom right linear-gradient(#f63249, #f63249) no-repeat;
+    background-size: 1px 6px, 1px 1px, 1px 6px; }
+
+textarea {
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 8px;
+  border: 1px solid #a7a7a7;
+  outline: 0;
+  display: block; }
+  textarea:focus {
+    border-color: #f63249; }
+
 .deck-wrapper {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 80%;
-  transform: translate(-50%, -50%); }
+  width: 75%;
+  transform: translate(-50%, -50%);
+  transition: width, left, transform;
+  transition-duration: 300ms;
+  transition-timing-function: ease; }
   .deck-wrapper::before {
     content: "";
     width: 100%;
     padding-top: 56.25%;
     display: block; }
+  .deck-wrapper.deck-editor-wrapper {
+    width: 0%; }
+    .deck-wrapper.deck-editor-wrapper.is-editing {
+      left: 0; }
+  .deck-wrapper.is-editing {
+    width: 50%;
+    transform: translate(0, -50%); }
 
 .deck-border {
   position: absolute;
@@ -35,7 +74,12 @@ a {
   bottom: 0;
   left: 0;
   border: 16px solid rgba(255, 255, 255, 0.1);
-  overflow: hidden; }
+  overflow: hidden;
+  transition: border-color;
+  transition-duration: 300ms;
+  transition-timing-function: ease; }
+  .deck-border.is-focused {
+    border-color: rgba(246, 50, 73, 0.5); }
 
 .deck {
   position: absolute;
@@ -46,19 +90,27 @@ a {
   padding: 32px;
   background-color: white; }
 
-.sub-controls {
+.deck-tools {
+  overflow: hidden;
+  display: none;
+  transform: translate(0, 100%); }
+
+.sub-controls-wrapper {
   position: absolute;
   top: 0;
   left: 50%;
   width: 80%;
-  margin: 0;
-  padding: 0;
-  list-style: none;
   transform: translate(-50%, 0); }
 
-.sub-control {
+.sub-controls {
   float: right;
-  margin: 0 8px; }
+  margin: 0;
+  padding: 0;
+  list-style: none; }
+
+.sub-control {
+  float: left;
+  margin: 0 4px; }
   .sub-control:last-child {
     margin-right: 0; }
 

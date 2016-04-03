@@ -11200,8 +11200,109 @@ Elm.Component.Slide.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
    var view = function (slide) {    var _p0 = slide;if (_p0.ctor === "Just") {    return $Markdown.toHtml(_p0._0.body);} else {    return $Html.text("");}};
+   var UpdateBody = function (a) {    return {ctor: "UpdateBody",_0: a};};
+   var UpdateTitle = function (a) {    return {ctor: "UpdateTitle",_0: a};};
    var Slide = F2(function (a,b) {    return {title: a,body: b};});
-   return _elm.Component.Slide.values = {_op: _op,Slide: Slide,view: view};
+   var update = F2(function (action,slide) {
+      var _p1 = action;
+      if (_p1.ctor === "UpdateTitle") {
+            var _p3 = _p1._0;
+            var _p2 = slide;
+            if (_p2.ctor === "Just") {
+                  return _U.update(_p2._0,{title: _p3});
+               } else {
+                  return A2(Slide,_p3,"");
+               }
+         } else {
+            var _p5 = _p1._0;
+            var _p4 = slide;
+            if (_p4.ctor === "Just") {
+                  return _U.update(_p4._0,{body: _p5});
+               } else {
+                  return A2(Slide,"",_p5);
+               }
+         }
+   });
+   return _elm.Component.Slide.values = {_op: _op,Slide: Slide,UpdateTitle: UpdateTitle,UpdateBody: UpdateBody,update: update,view: view};
+};
+Elm.Component = Elm.Component || {};
+Elm.Component.Tools = Elm.Component.Tools || {};
+Elm.Component.Tools.make = function (_elm) {
+   "use strict";
+   _elm.Component = _elm.Component || {};
+   _elm.Component.Tools = _elm.Component.Tools || {};
+   if (_elm.Component.Tools.values) return _elm.Component.Tools.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var viewTool = function (tool) {
+      var _p0 = tool;
+      switch (_p0.ctor)
+      {case "Add": return A2($Html.a,
+           A2($List.append,
+           _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-add",_1: true}]))]),
+           _p0._0),
+           _U.list([A2($Html.i,
+           _U.list([$Html$Attributes.title("Add"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-plus",_1: true}]))]),
+           _U.list([]))]));
+         case "Edit": return A2($Html.a,
+           A2($List.append,
+           _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-edit",_1: true}]))]),
+           _p0._0),
+           _U.list([A2($Html.i,
+           _U.list([$Html$Attributes.title("Edit"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-pencil",_1: true}]))]),
+           _U.list([]))]));
+         case "Delete": return A2($Html.a,
+           A2($List.append,
+           _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-delete",_1: true}]))]),
+           _p0._0),
+           _U.list([A2($Html.i,
+           _U.list([$Html$Attributes.title("Delete"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-times",_1: true}]))]),
+           _U.list([]))]));
+         default: return A2($Html.a,
+           A2($List.append,
+           _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-fullscreen",_1: true}]))]),
+           _p0._0),
+           _U.list([A2($Html.i,
+           _U.list([$Html$Attributes.title("Fullscreen"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-arrows-alt",_1: true}]))]),
+           _U.list([]))]));}
+   };
+   var view = function (tools) {
+      return A2($Html.ul,
+      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-controls",_1: true}]))]),
+      A2($List.map,
+      function (x) {
+         return A2($Html.li,_U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control",_1: true}]))]),_U.list([x]));
+      },
+      A2($List.map,viewTool,tools)));
+   };
+   var Fullscreen = function (a) {    return {ctor: "Fullscreen",_0: a};};
+   var Delete = function (a) {    return {ctor: "Delete",_0: a};};
+   var Edit = function (a) {    return {ctor: "Edit",_0: a};};
+   var Add = function (a) {    return {ctor: "Add",_0: a};};
+   return _elm.Component.Tools.values = {_op: _op,Add: Add,Edit: Edit,Delete: Delete,Fullscreen: Fullscreen,viewTool: viewTool,view: view};
+};
+Elm.ElmDeck = Elm.ElmDeck || {};
+Elm.ElmDeck.make = function (_elm) {
+   "use strict";
+   _elm.ElmDeck = _elm.ElmDeck || {};
+   if (_elm.ElmDeck.values) return _elm.ElmDeck.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   return _elm.ElmDeck.values = {_op: _op};
 };
 Elm.Component = Elm.Component || {};
 Elm.Component.Deck = Elm.Component.Deck || {};
@@ -11214,8 +11315,10 @@ Elm.Component.Deck.make = function (_elm) {
    $Array = Elm.Array.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Component$Slide = Elm.Component.Slide.make(_elm),
+   $Component$Tools = Elm.Component.Tools.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Effects = Elm.Effects.make(_elm),
+   $ElmDeck = Elm.ElmDeck.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Http = Elm.Http.make(_elm),
@@ -11228,36 +11331,47 @@ Elm.Component.Deck.make = function (_elm) {
    $String = Elm.String.make(_elm),
    $Task = Elm.Task.make(_elm);
    var _op = {};
-   var view = function (deck) {
+   var view = function (_p0) {
+      var _p1 = _p0;
+      var _p2 = _p1._1;
+      var tools = _U.list([$Component$Tools.Add(_U.list([])),$Component$Tools.Edit(_U.list([])),$Component$Tools.Fullscreen(_U.list([]))]);
       return A2($Html.div,
-      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-wrapper",_1: true}]))]),
+      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-wrapper",_1: true},{ctor: "_Tuple2",_0: "is-editing",_1: _p1._0}]))]),
       _U.list([A2($Html.div,
-      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-border",_1: true}]))]),
-      _U.list([A2($Html.div,
-      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck",_1: true}]))]),
-      _U.list([A2($Html.div,
-              _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-header",_1: true}]))]),
-              _U.list([A2($Html.div,_U.list([]),_U.list([$Html.text(deck.title)]))
-                      ,A2($Html.div,_U.list([]),_U.list([$Html.text(deck.author)]))
+              _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-border",_1: true}]))]),
+              _U.list([A2($Html.div,
+              _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck",_1: true}]))]),
+              _U.list([A2($Html.div,
+                      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-header",_1: true}]))]),
+                      _U.list([A2($Html.div,_U.list([]),_U.list([$Html.text(_p2.title)]))
+                              ,A2($Html.div,_U.list([]),_U.list([$Html.text(_p2.author)]))
+                              ,A2($Html.div,
+                              _U.list([]),
+                              _U.list([$Html.text(A3($List.foldr,
+                              F2(function (x,y) {    return A2($Basics._op["++"],x,y);}),
+                              "",
+                              A2($List.map,$Basics.toString,_p2.history)))]))]))
                       ,A2($Html.div,
-                      _U.list([]),
-                      _U.list([$Html.text(A3($List.foldr,
-                      F2(function (x,y) {    return A2($Basics._op["++"],x,y);}),
-                      "",
-                      A2($List.map,$Basics.toString,deck.history)))]))]))
+                      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "slide-container",_1: true}]))]),
+                      _U.list([$Component$Slide.view(A2($Array.get,A2($Maybe.withDefault,0,$List.head(_p2.history)),_p2.slides))]))]))]))
               ,A2($Html.div,
-              _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "slide-container",_1: true}]))]),
-              _U.list([$Component$Slide.view(A2($Array.get,A2($Maybe.withDefault,0,$List.head(deck.history)),deck.slides))]))]))]))]));
+              _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-tools",_1: true}]))]),
+              _U.list([$Component$Tools.view(tools)]))]));
    };
+   var insertBlankSlide = F2(function (n,slides) {
+      return A2($Array.append,A2($Array.push,A2($Component$Slide.Slide,"",""),A3($Array.slice,0,n,slides)),A3($Array.slice,n,$Array.length(slides),slides));
+   });
    var current = function (deck) {    return A2($Maybe.withDefault,0,$List.head(deck.history));};
    var next = function (deck) {    return A2($Basics.min,$Array.length(deck.slides) - 1,current(deck) + 1);};
    var prev = function (deck) {    return A2($Basics.max,0,current(deck) - 1);};
    var url = function (idifiedTitle) {    return A2($Basics._op["++"],"http://0.0.0.0:8000/data/",A2($Basics._op["++"],idifiedTitle,".json"));};
    var idify = function (title) {
-      return $String.toLower(A4($Regex.replace,$Regex.All,$Regex.regex("[^a-zA-Z0-9]+"),function (_p0) {    return "-";},title));
+      return $String.toLower(A4($Regex.replace,$Regex.All,$Regex.regex("[^a-zA-Z0-9]+"),function (_p3) {    return "-";},title));
    };
+   var SlideAction = function (a) {    return {ctor: "SlideAction",_0: a};};
    var Backward = {ctor: "Backward"};
    var Forward = {ctor: "Forward"};
+   var AddSlide = {ctor: "AddSlide"};
    var Load = function (a) {    return {ctor: "Load",_0: a};};
    var Fetch = function (a) {    return {ctor: "Fetch",_0: a};};
    var New = function (a) {    return {ctor: "New",_0: a};};
@@ -11280,14 +11394,19 @@ Elm.Component.Deck.make = function (_elm) {
       return {ctor: "_Tuple2",_0: A5(Deck,idify(title),title,"",$Array.fromList(_U.list([])),_U.list([])),_1: load(idify(title))};
    };
    var update = F2(function (action,deck) {
-      var _p1 = action;
-      switch (_p1.ctor)
+      var _p4 = action;
+      switch (_p4.ctor)
       {case "NoOp": return {ctor: "_Tuple2",_0: deck,_1: $Effects.none};
-         case "New": return init(_p1._0);
-         case "Fetch": return {ctor: "_Tuple2",_0: deck,_1: load(idify(_p1._0))};
-         case "Load": return {ctor: "_Tuple2",_0: A2($Maybe.withDefault,deck,_p1._0),_1: $Effects.none};
+         case "New": return init(_p4._0);
+         case "Fetch": return {ctor: "_Tuple2",_0: deck,_1: load(idify(_p4._0))};
+         case "Load": return {ctor: "_Tuple2",_0: A2($Maybe.withDefault,deck,_p4._0),_1: $Effects.none};
+         case "AddSlide": var newSlides = A2(insertBlankSlide,next(deck),deck.slides);
+           return {ctor: "_Tuple2",_0: _U.update(deck,{slides: newSlides,history: A2($List._op["::"],next(deck),deck.history)}),_1: $Effects.none};
          case "Forward": return {ctor: "_Tuple2",_0: _U.update(deck,{history: A2($List._op["::"],next(deck),deck.history)}),_1: $Effects.none};
-         default: return {ctor: "_Tuple2",_0: _U.update(deck,{history: A2($List._op["::"],prev(deck),deck.history)}),_1: $Effects.none};}
+         case "Backward": return {ctor: "_Tuple2",_0: _U.update(deck,{history: A2($List._op["::"],prev(deck),deck.history)}),_1: $Effects.none};
+         default: var currentPos = A2($Maybe.withDefault,0,$List.head(deck.history));
+           var newSlides = A3($Array.set,currentPos,A2($Component$Slide.update,_p4._0,A2($Array.get,currentPos,deck.slides)),deck.slides);
+           return {ctor: "_Tuple2",_0: _U.update(deck,{slides: newSlides}),_1: $Effects.none};}
    });
    return _elm.Component.Deck.values = {_op: _op
                                        ,Deck: Deck
@@ -11295,33 +11414,165 @@ Elm.Component.Deck.make = function (_elm) {
                                        ,New: New
                                        ,Fetch: Fetch
                                        ,Load: Load
+                                       ,AddSlide: AddSlide
                                        ,Forward: Forward
                                        ,Backward: Backward
+                                       ,SlideAction: SlideAction
                                        ,idify: idify
                                        ,url: url
                                        ,current: current
                                        ,next: next
                                        ,prev: prev
                                        ,init: init
+                                       ,insertBlankSlide: insertBlankSlide
                                        ,update: update
                                        ,view: view
                                        ,load: load
                                        ,decode: decode};
 };
-Elm.ElmDeck = Elm.ElmDeck || {};
-Elm.ElmDeck.make = function (_elm) {
+Elm.Html = Elm.Html || {};
+Elm.Html.Events = Elm.Html.Events || {};
+Elm.Html.Events.make = function (_elm) {
    "use strict";
-   _elm.ElmDeck = _elm.ElmDeck || {};
-   if (_elm.ElmDeck.values) return _elm.ElmDeck.values;
+   _elm.Html = _elm.Html || {};
+   _elm.Html.Events = _elm.Html.Events || {};
+   if (_elm.Html.Events.values) return _elm.Html.Events.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Json$Decode = Elm.Json.Decode.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $VirtualDom = Elm.VirtualDom.make(_elm);
+   var _op = {};
+   var keyCode = A2($Json$Decode._op[":="],"keyCode",$Json$Decode.$int);
+   var targetChecked = A2($Json$Decode.at,_U.list(["target","checked"]),$Json$Decode.bool);
+   var targetValue = A2($Json$Decode.at,_U.list(["target","value"]),$Json$Decode.string);
+   var defaultOptions = $VirtualDom.defaultOptions;
+   var Options = F2(function (a,b) {    return {stopPropagation: a,preventDefault: b};});
+   var onWithOptions = $VirtualDom.onWithOptions;
+   var on = $VirtualDom.on;
+   var messageOn = F3(function (name,addr,msg) {    return A3(on,name,$Json$Decode.value,function (_p0) {    return A2($Signal.message,addr,msg);});});
+   var onClick = messageOn("click");
+   var onDoubleClick = messageOn("dblclick");
+   var onMouseMove = messageOn("mousemove");
+   var onMouseDown = messageOn("mousedown");
+   var onMouseUp = messageOn("mouseup");
+   var onMouseEnter = messageOn("mouseenter");
+   var onMouseLeave = messageOn("mouseleave");
+   var onMouseOver = messageOn("mouseover");
+   var onMouseOut = messageOn("mouseout");
+   var onBlur = messageOn("blur");
+   var onFocus = messageOn("focus");
+   var onSubmit = messageOn("submit");
+   var onKey = F3(function (name,addr,handler) {    return A3(on,name,keyCode,function (code) {    return A2($Signal.message,addr,handler(code));});});
+   var onKeyUp = onKey("keyup");
+   var onKeyDown = onKey("keydown");
+   var onKeyPress = onKey("keypress");
+   return _elm.Html.Events.values = {_op: _op
+                                    ,onBlur: onBlur
+                                    ,onFocus: onFocus
+                                    ,onSubmit: onSubmit
+                                    ,onKeyUp: onKeyUp
+                                    ,onKeyDown: onKeyDown
+                                    ,onKeyPress: onKeyPress
+                                    ,onClick: onClick
+                                    ,onDoubleClick: onDoubleClick
+                                    ,onMouseMove: onMouseMove
+                                    ,onMouseDown: onMouseDown
+                                    ,onMouseUp: onMouseUp
+                                    ,onMouseEnter: onMouseEnter
+                                    ,onMouseLeave: onMouseLeave
+                                    ,onMouseOver: onMouseOver
+                                    ,onMouseOut: onMouseOut
+                                    ,on: on
+                                    ,onWithOptions: onWithOptions
+                                    ,defaultOptions: defaultOptions
+                                    ,targetValue: targetValue
+                                    ,targetChecked: targetChecked
+                                    ,keyCode: keyCode
+                                    ,Options: Options};
+};
+Elm.Component = Elm.Component || {};
+Elm.Component.Editor = Elm.Component.Editor || {};
+Elm.Component.Editor.make = function (_elm) {
+   "use strict";
+   _elm.Component = _elm.Component || {};
+   _elm.Component.Editor = _elm.Component.Editor || {};
+   if (_elm.Component.Editor.values) return _elm.Component.Editor.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Array = Elm.Array.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Component$Deck = Elm.Component.Deck.make(_elm),
+   $Component$Slide = Elm.Component.Slide.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $ElmDeck = Elm.ElmDeck.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
+   $Json$Encode = Elm.Json.Encode.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   return _elm.ElmDeck.values = {_op: _op};
+   var onInput = F2(function (address,contentToValue) {
+      return A3($Html$Events.on,"input",$Html$Events.targetValue,function (str) {    return A2($Signal.message,address,contentToValue(str));});
+   });
+   var update = F2(function (action,editor) {
+      var _p0 = action;
+      switch (_p0.ctor)
+      {case "SetFocus": return {ctor: "_Tuple2",_0: _U.update(editor,{focused: _p0._0}),_1: action};
+         case "ToggleEditing": var newEditor = editor.focused ? editor : _U.update(editor,{editing: $Basics.not(editor.editing)});
+           return {ctor: "_Tuple2",_0: newEditor,_1: action};
+         default: return {ctor: "_Tuple2",_0: editor,_1: action};}
+   });
+   var UpdateBody = function (a) {    return {ctor: "UpdateBody",_0: a};};
+   var UpdateTitle = function (a) {    return {ctor: "UpdateTitle",_0: a};};
+   var ToggleEditing = {ctor: "ToggleEditing"};
+   var SetFocus = function (a) {    return {ctor: "SetFocus",_0: a};};
+   var view = F2(function (address,_p1) {
+      var _p2 = _p1;
+      var _p4 = _p2._0;
+      var _p3 = _p2._1;
+      var slide = A2($Maybe.withDefault,A2($Component$Slide.Slide,"",""),A2($Array.get,A2($Maybe.withDefault,0,$List.head(_p3.history)),_p3.slides));
+      return A2($Html.div,
+      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-wrapper deck-editor-wrapper",_1: true}
+                                                  ,{ctor: "_Tuple2",_0: "is-editing",_1: _p4.editing}]))]),
+      _U.list([A2($Html.div,
+      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-border deck-editor-border",_1: true}
+                                                  ,{ctor: "_Tuple2",_0: "is-focused",_1: _p4.focused}]))]),
+      _U.list([A2($Html.div,
+      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck deck-editor",_1: true}]))]),
+      _U.list([A2($Html.input,
+              _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "editor-slide-title",_1: true}]))
+                      ,A2($Html$Events.onBlur,address,SetFocus(false))
+                      ,A2($Html$Events.onFocus,address,SetFocus(true))
+                      ,A2(onInput,address,UpdateTitle)
+                      ,A2($Html$Attributes.property,"type",$Json$Encode.string("text"))
+                      ,$Html$Attributes.value(slide.title)]),
+              _U.list([]))
+              ,A2($Html.textarea,
+              _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "editor-slide-body",_1: true}]))
+                      ,A2($Html$Events.onBlur,address,SetFocus(false))
+                      ,A2($Html$Events.onFocus,address,SetFocus(true))
+                      ,A2(onInput,address,UpdateBody)
+                      ,$Html$Attributes.value(slide.body)]),
+              _U.list([]))]))]))]));
+   });
+   var Editor = F2(function (a,b) {    return {editing: a,focused: b};});
+   return _elm.Component.Editor.values = {_op: _op
+                                         ,Editor: Editor
+                                         ,SetFocus: SetFocus
+                                         ,ToggleEditing: ToggleEditing
+                                         ,UpdateTitle: UpdateTitle
+                                         ,UpdateBody: UpdateBody
+                                         ,update: update
+                                         ,onInput: onInput
+                                         ,view: view};
 };
 Elm.Set = Elm.Set || {};
 Elm.Set.make = function (_elm) {
@@ -11530,6 +11781,9 @@ Elm.Main.make = function (_elm) {
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Component$Deck = Elm.Component.Deck.make(_elm),
+   $Component$Editor = Elm.Component.Editor.make(_elm),
+   $Component$Slide = Elm.Component.Slide.make(_elm),
+   $Component$Tools = Elm.Component.Tools.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Effects = Elm.Effects.make(_elm),
    $ElmDeck = Elm.ElmDeck.make(_elm),
@@ -11543,67 +11797,85 @@ Elm.Main.make = function (_elm) {
    $StartApp = Elm.StartApp.make(_elm),
    $Task = Elm.Task.make(_elm);
    var _op = {};
+   var EditorAction = function (a) {    return {ctor: "EditorAction",_0: a};};
    var view = F2(function (address,state) {
+      var tools = _U.list([$Component$Tools.Add(_U.list([])),$Component$Tools.Edit(_U.list([])),$Component$Tools.Fullscreen(_U.list([]))]);
+      var editor = A2($Component$Editor.view,A2($Signal.forwardTo,address,EditorAction),{ctor: "_Tuple2",_0: state.editor,_1: state.deck});
+      var deck = $Component$Deck.view({ctor: "_Tuple2",_0: state.editor.editing,_1: state.deck});
       return A2($Html.div,
       _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "app-container",_1: true}]))]),
-      _U.list([$Component$Deck.view(state.deck)
-              ,A2($Html.ul,
-              _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-controls",_1: true}]))]),
-              _U.list([A2($Html.li,
-                      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control",_1: true}]))]),
-                      _U.list([A2($Html.a,
-                      _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-edit",_1: true}]))]),
-                      _U.list([$Html.text("Edit ")
-                              ,A2($Html.i,_U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-pencil",_1: true}]))]),_U.list([]))]))]))
-                      ,A2($Html.li,
-                      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control",_1: true}]))]),
-                      _U.list([A2($Html.a,
-                      _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-edit",_1: true}]))]),
-                      _U.list([$Html.text("Fullscreen ")
-                              ,A2($Html.i,
-                              _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-arrows-alt",_1: true}]))]),
-                              _U.list([]))]))]))]))]));
+      _U.list([editor
+              ,deck
+              ,A2($Html.div,
+              _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-controls-wrapper",_1: true}]))]),
+              _U.list([$Component$Tools.view(tools)]))]));
    });
-   var SetEditing = function (a) {    return {ctor: "SetEditing",_0: a};};
+   var SlideAction = function (a) {    return {ctor: "SlideAction",_0: a};};
+   var DeckAction = function (a) {    return {ctor: "DeckAction",_0: a};};
+   var traverse = function () {
+      var keyToAction = function (key) {
+         var _p0 = key;
+         switch (_p0)
+         {case 97: return DeckAction($Component$Deck.Backward);
+            case 100: return DeckAction($Component$Deck.Forward);
+            case 101: return EditorAction($Component$Editor.ToggleEditing);
+            case 115: return DeckAction($Component$Deck.AddSlide);
+            default: return DeckAction($Component$Deck.NoOp);}
+      };
+      return A2($Signal.map,keyToAction,$Keyboard.presses);
+   }();
    var SetFullscreen = function (a) {    return {ctor: "SetFullscreen",_0: a};};
-   var Backward = {ctor: "Backward"};
-   var Forward = {ctor: "Forward"};
    var LoadDeck = function (a) {    return {ctor: "LoadDeck",_0: a};};
    var NoOp = {ctor: "NoOp"};
    var generalizeDeckAction = function (action) {
-      var _p0 = action;
-      if (_p0.ctor === "Load" && _p0._0.ctor === "Just") {
-            return LoadDeck(_p0._0._0);
+      var _p1 = action;
+      if (_p1.ctor === "Load" && _p1._0.ctor === "Just") {
+            return LoadDeck(_p1._0._0);
          } else {
             return NoOp;
          }
    };
    var update = F2(function (action,state) {
-      var _p1 = action;
-      switch (_p1.ctor)
-      {case "NoOp": return {ctor: "_Tuple2",_0: state,_1: $Effects.none};
-         case "LoadDeck": return {ctor: "_Tuple2",_0: _U.update(state,{deck: _p1._0}),_1: $Effects.none};
-         case "Forward": var _p2 = A2($Component$Deck.update,$Component$Deck.Forward,state.deck);
-           var deck = _p2._0;
-           var effect = _p2._1;
-           return {ctor: "_Tuple2",_0: _U.update(state,{deck: deck}),_1: A2($Effects.map,generalizeDeckAction,effect)};
-         case "Backward": var _p3 = A2($Component$Deck.update,$Component$Deck.Backward,state.deck);
-           var deck = _p3._0;
-           var effect = _p3._1;
-           return {ctor: "_Tuple2",_0: _U.update(state,{deck: deck}),_1: A2($Effects.map,generalizeDeckAction,effect)};
-         case "SetFullscreen": return {ctor: "_Tuple2",_0: _U.update(state,{fullscreen: _p1._0}),_1: $Effects.none};
-         default: return {ctor: "_Tuple2",_0: _U.update(state,{editing: _p1._0}),_1: $Effects.none};}
+      update: while (true) {
+         var _p2 = action;
+         switch (_p2.ctor)
+         {case "NoOp": return {ctor: "_Tuple2",_0: state,_1: $Effects.none};
+            case "LoadDeck": return {ctor: "_Tuple2",_0: _U.update(state,{deck: _p2._0}),_1: $Effects.none};
+            case "SetFullscreen": return {ctor: "_Tuple2",_0: _U.update(state,{fullscreen: _p2._0}),_1: $Effects.none};
+            case "DeckAction": if (_U.eq(state.editor.focused,false)) {
+                    var _p3 = A2($Component$Deck.update,_p2._0,state.deck);
+                    var deck = _p3._0;
+                    var effect = _p3._1;
+                    return {ctor: "_Tuple2",_0: _U.update(state,{deck: deck}),_1: A2($Effects.map,generalizeDeckAction,effect)};
+                 } else return {ctor: "_Tuple2",_0: state,_1: $Effects.none};
+            case "SlideAction": var _p4 = A2($Component$Deck.update,$Component$Deck.SlideAction(_p2._0),state.deck);
+              var deck = _p4._0;
+              var effect = _p4._1;
+              return {ctor: "_Tuple2",_0: _U.update(state,{deck: deck}),_1: A2($Effects.map,generalizeDeckAction,effect)};
+            default: var _p7 = _p2._0;
+              var _p5 = _p7;
+              switch (_p5.ctor)
+              {case "UpdateTitle": var _v4 = SlideAction($Component$Slide.UpdateTitle(_p5._0)),_v5 = state;
+                   action = _v4;
+                   state = _v5;
+                   continue update;
+                 case "UpdateBody": var _v6 = SlideAction($Component$Slide.UpdateBody(_p5._0)),_v7 = state;
+                   action = _v6;
+                   state = _v7;
+                   continue update;
+                 default: var _p6 = A2($Component$Editor.update,_p7,state.editor);
+                   var editor = _p6._0;
+                   var editorAction = _p6._1;
+                   return {ctor: "_Tuple2",_0: _U.update(state,{editor: editor}),_1: $Effects.none};}}
+      }
    });
-   var traverse = function () {
-      var keyToAction = function (key) {    var _p4 = key;switch (_p4) {case 100: return Forward;case 97: return Backward;default: return NoOp;}};
-      return A2($Signal.map,keyToAction,$Keyboard.presses);
-   }();
-   var State = F3(function (a,b,c) {    return {deck: a,fullscreen: b,editing: c};});
+   var State = F3(function (a,b,c) {    return {deck: a,editor: b,fullscreen: c};});
    var init = function () {
-      var _p5 = $Component$Deck.init("My New Deck");
-      var deck = _p5._0;
-      var effect = _p5._1;
-      return {ctor: "_Tuple2",_0: A3(State,deck,false,false),_1: A2($Effects.map,generalizeDeckAction,effect)};
+      var editor = A2($Component$Editor.Editor,false,false);
+      var _p8 = $Component$Deck.init("My New Deck");
+      var deck = _p8._0;
+      var effect = _p8._1;
+      return {ctor: "_Tuple2",_0: A3(State,deck,editor,false),_1: A2($Effects.map,generalizeDeckAction,effect)};
    }();
    var app = $StartApp.start({init: init,update: update,view: view,inputs: _U.list([traverse])});
    var main = app.html;
@@ -11612,10 +11884,10 @@ Elm.Main.make = function (_elm) {
                              ,State: State
                              ,NoOp: NoOp
                              ,LoadDeck: LoadDeck
-                             ,Forward: Forward
-                             ,Backward: Backward
                              ,SetFullscreen: SetFullscreen
-                             ,SetEditing: SetEditing
+                             ,DeckAction: DeckAction
+                             ,SlideAction: SlideAction
+                             ,EditorAction: EditorAction
                              ,generalizeDeckAction: generalizeDeckAction
                              ,init: init
                              ,update: update

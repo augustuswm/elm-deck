@@ -9,9 +9,14 @@ $interaction-color: rgba(246, 50, 73, 1);
 
 $hover-color: $interaction-color;
 $active-color: darken($hover-color, 15%);
+$transition-color-duration: 300ms;
+$transition-color-timing: ease;
+
+$input-border-color: #a7a7a7;
 
 $slide-background-color: $base-color;
 $border-color: transparentize($slide-background-color, 0.9);
+$interaction-border-color: transparentize($interaction-color, 0.5);
 
 $button-color: $border-color;
 
@@ -24,13 +29,15 @@ body {
 }
 
 a {
-  padding: $small-gutter;
+  padding: $small-gutter $gutter;
   background-color: $button-color;
   border: 0;
   color: $slide-background-color;
   display: inline-block;
-  transition: color;
-
+  text-decoration: none;
+  transition: background-color;
+  transition-duration: $transition-color-duration;
+  transition-timing-function: $transition-color-timing;
 
   &:hover {
     background-color: $hover-color;
@@ -41,18 +48,70 @@ a {
   }
 }
 
+input {
+  width: 100%;
+  margin-bottom: $gutter;
+  padding: $small-gutter;
+  background: bottom left linear-gradient($input-border-color, $input-border-color) no-repeat,
+    bottom center linear-gradient($input-border-color, $input-border-color) repeat-x,
+    bottom right linear-gradient($input-border-color, $input-border-color) no-repeat;
+  background-size: 1px 6px, 1px 1px, 1px 6px;
+  border: 0;
+  outline: 0;
+  display: block;
+  transition: background;
+  transition-duration: $transition-color-duration;
+  transition-timing-function: $transition-color-timing;
+
+  &:focus {
+    background: bottom left linear-gradient($interaction-color, $interaction-color) no-repeat,
+      bottom center linear-gradient($interaction-color, $interaction-color) repeat-x,
+      bottom right linear-gradient($interaction-color, $interaction-color) no-repeat;
+    background-size: 1px 6px, 1px 1px, 1px 6px;
+  }
+}
+
+textarea {
+  width: 100%;
+  margin-bottom: $gutter;
+  padding: $small-gutter;
+  border: 1px solid $input-border-color;
+  outline: 0;
+  display: block;
+
+  &:focus {
+    border-color: $interaction-color;
+  }
+}
+
 .deck-wrapper {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 80%;
+  width: 75%;
   transform: translate(-50%, -50%);
+  transition: width, left, transform;
+  transition-duration: $transition-color-duration;
+  transition-timing-function: $transition-color-timing;
 
   &::before {
     content: "";
     width: 100%;
     padding-top: 56.25%;
     display: block;
+  }
+
+  &.deck-editor-wrapper {
+    width: 0%;
+
+    &.is-editing {
+      left: 0;
+    }
+  }
+
+  &.is-editing {
+    width: 50%;
+    transform: translate(0, -50%);
   }
 }
 
@@ -64,6 +123,13 @@ a {
   left: 0;
   border: $gutter solid $border-color;
   overflow: hidden;
+  transition: border-color;
+  transition-duration: $transition-color-duration;
+  transition-timing-function: $transition-color-timing;
+
+  &.is-focused {
+    border-color: $interaction-border-color;
+  }
 }
 
 .deck {
@@ -76,20 +142,37 @@ a {
   background-color: $slide-background-color;
 }
 
-.sub-controls {
+.editor-slide-title {
+}
+
+.editor-slide-body {
+
+}
+
+.deck-tools {
+  overflow: hidden;
+  display: none;
+  transform: translate(0, 100%);
+}
+
+.sub-controls-wrapper {
   position: absolute;
   top: 0;
   left: 50%;
   width: 80%;
-  margin: 0;
-  padding: 0;
-  list-style: none;
   transform: translate(-50%, 0);
 }
 
-.sub-control {
+.sub-controls {
   float: right;
-  margin: 0 $small-gutter;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sub-control {
+  float: left;
+  margin: 0 $xsmall-gutter;
   
   &:last-child {
     margin-right: 0;
