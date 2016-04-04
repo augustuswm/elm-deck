@@ -11,6 +11,8 @@ type Tool =
   | Edit (List Html.Attribute) 
   | Delete (List Html.Attribute)
   | Fullscreen (List Html.Attribute)
+  | Forward (List Html.Attribute)
+  | Backward (List Html.Attribute)
 
 -- View
 
@@ -33,6 +35,14 @@ viewTool tool =
       a (append [ href "#", classList [ ("sub-control-fullscreen", True) ] ] attributes)
       [ i [ title "Fullscreen", classList [ ("fa fa-arrows-alt", True) ] ] [] ]  
 
+    Forward attributes ->
+      a (append [ href "#", classList [ ("sub-control-forward", True) ] ] attributes)
+      [ i [ title "Forward", classList [ ("fa fa-angle-right", True) ] ] [] ]
+
+    Backward attributes ->
+      a (append [ href "#", classList [ ("sub-control-backward", True) ] ] attributes)
+      [ i [ title "Backward", classList [ ("fa fa-angle-left", True) ] ] [] ]
+ 
 view : Tools -> Html
 view tools =
   ul [ classList [ ("sub-controls", True) ] ]

@@ -4,6 +4,7 @@ import Array exposing (Array, append, fromList, get, push, slice)
 import Effects exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (classList)
+import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Json exposing ((:=))
 import List exposing (head, length)
@@ -127,28 +128,40 @@ update action deck =
 
 -- View
 
-view : (EditingState, Deck) -> Html
-view (editing, deck) =
+view : Signal.Address Action -> (Deck) -> Html
+view address (deck) =
   let
+    slide = (Array.get (Maybe.withDefault 0 (head deck.history)) deck.slides)
     tools = [
-      Component.Tools.Add []
-    , Component.Tools.Edit []
-    , Component.Tools.Fullscreen []
+      Component.Tools.Backward [ onClick address Backward ],
+      Component.Tools.Forward [ onClick address Forward ]
     ]
-  in
-    div [ classList [ ("deck-wrapper", True), ("is-editing", editing) ] ]
+  in  
+    div [ classList [ ("deck-wrapper", True) ] ]
     [ div [ classList [ ("deck-border", True) ] ]
       [ div [ classList [ ("deck", True) ] ]
         [ div [ classList [ ("deck-header", True) ] ]
-          [ div [] [ text deck.title ]
-          , div [] [ text deck.author ]
-          , div [] [ text <| List.foldr (++) "" <| List.map toString deck.history ]
+          [ small [ classList [ ("deck-header-title", True) ] ] [ text deck.title ]
+          , small [ classList [ ("deck-header-author", True) ] ] [ text deck.author ]
           ]
         , div [ classList [ ("slide-container", True) ] ]
-          [ Component.Slide.view (Array.get (Maybe.withDefault 0 (head deck.history)) deck.slides) ]
+          [ Component.Slide.view slide ]
+        , div [ classList [ ("slide-extra-info", True) ] ]
+          [ div [ classList [ ("slide-title", True) ] ]
+            [ small []
+              [ text <| (Maybe.withDefault (Slide "" "") slide).title ]
+            ]
+          , div [ classList [ ("slide-position", True) ] ]
+            [ small []
+              [ text <| toString <| (Maybe.withDefault 0 <| head deck.history) + 1
+              , text "/"
+              , text <| toString <| Array.length deck.slides
+              ]
+            ]
+          ]
         ]
       ]
-    , div [ classList [ ("deck-tools", True)] ]
+    , div [ classList [ ("deck-tools", True) ] ]
       [ (Component.Tools.view tools) ]
     ]
 
@@ -170,6 +183,7 @@ decode =
     ("slides" := Json.array
       (Json.object2 Slide
         ("title" := Json.string)
-        ("body" := Json.string))
+        ("body" := Json.string)
+      )
     )
     ("history" := Json.list Json.int)

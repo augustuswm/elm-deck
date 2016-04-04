@@ -4,6 +4,7 @@ import Debug exposing (..)
 import Effects exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (classList, href, title)
+import Html.Events exposing (onClick)
 import Keyboard
 import Maybe
 import StartApp
@@ -85,6 +86,14 @@ update action state =
 
     EditorAction editorAction ->
       case editorAction of
+        Component.Editor.AddSlide ->
+          let
+            (deck, effect) = Component.Deck.update Component.Deck.AddSlide state.deck
+          in
+            ( { state | deck = deck }
+            , Effects.map generalizeDeckAction effect
+            )
+
         Component.Editor.UpdateTitle title ->
           update (SlideAction <| Component.Slide.UpdateTitle title) state
 
@@ -104,19 +113,18 @@ update action state =
 view : Signal.Address Action -> State -> Html
 view address state =
   let
-    deck = Component.Deck.view (state.editor.editing, state.deck)
+    deck = Component.Deck.view (Signal.forwardTo address DeckAction) (state.deck)
     editor = Component.Editor.view (Signal.forwardTo address EditorAction) (state.editor, state.deck)
-    tools = [
-      Component.Tools.Add []
-    , Component.Tools.Edit []
-    , Component.Tools.Fullscreen []
-    ]
+    tools =
+      [ Component.Tools.Edit [ onClick address (EditorAction Component.Editor.ToggleEditing) ]
+      , Component.Tools.Fullscreen []
+      ]
   in
-    div [ classList [ ("app-container", True) ] ]
+    div [ classList [ ("app-container", True), ("is-editing", state.editor.editing) ] ]
     [ editor
     , deck
     , div [ classList [ ("sub-controls-wrapper", True) ] ]
-      [ (Component.Tools.view tools)]
+      [ (Component.Tools.view tools) ]
     ]
 
 -- Runner
@@ -126,7 +134,7 @@ app =
     { init = init
     , update = update
     , view = view
-    , inputs = [ traverse ]
+    , inputs = []
     }
 
 main =
@@ -143,8 +151,6 @@ traverse =
           DeckAction Component.Deck.Backward
         100 ->
           DeckAction Component.Deck.Forward
-        101 ->
-          EditorAction Component.Editor.ToggleEditing
         115 ->
           DeckAction Component.Deck.AddSlide
         _ ->

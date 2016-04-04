@@ -4,13 +4,14 @@ import Array exposing (get)
 import List exposing (head)
 import Maybe
 import Html exposing (..)
-import Html.Attributes exposing (classList, property, value)
-import Html.Events exposing (on, onFocus, onBlur, targetValue)
+import Html.Attributes exposing (classList, key, property, value)
+import Html.Events exposing (on, onClick, onFocus, onBlur, targetValue)
 import Json.Encode exposing (string)
 import Maybe
 
 import Component.Deck exposing (Deck)
 import Component.Slide exposing (Slide)
+import Component.Tools exposing (Tools)
 import ElmDeck exposing (..)
 
 -- Model
@@ -27,6 +28,7 @@ type Action =
   | ToggleEditing
   | UpdateTitle String
   | UpdateBody String
+  | AddSlide
 
 -- Update
 
@@ -54,12 +56,13 @@ view: Signal.Address Action -> (Editor, Deck) -> Html
 view address (editor, deck) =
   let
     slide = Maybe.withDefault (Slide "" "") <| get (Maybe.withDefault 0 (head deck.history)) deck.slides
+    tools = [
+      Component.Tools.Add [ onClick address AddSlide ]
+    ]
   in
     div
     [ classList
-      [ ("deck-wrapper deck-editor-wrapper", True)
-      , ("is-editing", editor.editing)
-      ]
+      [ ("deck-wrapper deck-editor-wrapper", True) ]
     ]
     [ div
       [ classList
@@ -72,17 +75,20 @@ view address (editor, deck) =
           [ classList [ ("editor-slide-title", True) ]
           , onBlur address (SetFocus False)
           , onFocus address (SetFocus True)
-          , onInput address UpdateTitle
-          , property "type" (string "text")
+          , on "input" targetValue (Signal.message address << UpdateTitle)
           , value slide.title
           ] []
-        , textarea 
-          [ classList [ ("editor-slide-body", True) ]
-          , onBlur address (SetFocus False)
-          , onFocus address (SetFocus True)
-          , onInput address UpdateBody
-          , value slide.body
-          ] []
+        , div [ classList [ ("text-area-wrapper", True) ] ]
+          [ textarea
+            [ classList [ ("editor-slide-body", True) ]
+            , onBlur address (SetFocus False)
+            , onFocus address (SetFocus True)
+            , on "input" targetValue (Signal.message address << UpdateBody)
+            , value slide.body
+            ] []
+          ]
         ]
       ]
+    , div [ classList [ ("deck-tools", True)] ]
+      [ (Component.Tools.view tools) ] 
     ]

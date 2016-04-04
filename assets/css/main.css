@@ -37,21 +37,29 @@ input {
 
 textarea {
   width: 100%;
+  height: 100%;
   margin-bottom: 16px;
   padding: 8px;
   border: 1px solid #a7a7a7;
-  outline: 0;
-  display: block; }
+  outline: 0; }
   textarea:focus {
     border-color: #f63249; }
+
+.app-container.is-editing .deck-editor-wrapper {
+  left: 0; }
+.app-container.is-editing .deck-wrapper {
+  width: 50%;
+  font-size: 0.67rem;
+  transform: translate(0, -50%); }
 
 .deck-wrapper {
   position: absolute;
   top: 50%;
   left: 50%;
   width: 75%;
+  font-size: 1rem;
   transform: translate(-50%, -50%);
-  transition: width, left, transform;
+  transition: width, left, font-size, transform;
   transition-duration: 300ms;
   transition-timing-function: ease; }
   .deck-wrapper::before {
@@ -61,11 +69,24 @@ textarea {
     display: block; }
   .deck-wrapper.deck-editor-wrapper {
     width: 0%; }
-    .deck-wrapper.deck-editor-wrapper.is-editing {
-      left: 0; }
-  .deck-wrapper.is-editing {
-    width: 50%;
-    transform: translate(0, -50%); }
+    .deck-wrapper.deck-editor-wrapper .deck-tools > .sub-controls {
+      float: left; }
+
+.deck-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border: 0 solid rgba(0, 0, 0, 0.5);
+  border-bottom-width: 1px; }
+
+.deck-header-title {
+  float: left; }
+
+.deck-header-author {
+  float: right; }
 
 .deck-border {
   position: absolute;
@@ -90,10 +111,40 @@ textarea {
   padding: 32px;
   background-color: white; }
 
+.slide-extra-info {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 8px;
+  text-align: center; }
+
+.slide-title {
+  float: left; }
+
+.slide-position {
+  float: right; }
+
+.text-area-wrapper {
+  position: absolute;
+  top: 80px;
+  right: 32px;
+  bottom: 32px;
+  left: 32px; }
+
 .deck-tools {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
   overflow: hidden;
-  display: none;
   transform: translate(0, 100%); }
+  .deck-tools > .sub-controls {
+    float: right; }
+    .deck-tools > .sub-controls > .sub-control:first-child {
+      margin-left: 16px; }
+    .deck-tools > .sub-controls > .sub-control:last-child {
+      margin-right: 16px; }
 
 .sub-controls-wrapper {
   position: absolute;
@@ -110,8 +161,6 @@ textarea {
 
 .sub-control {
   float: left;
-  margin: 0 4px; }
-  .sub-control:last-child {
-    margin-right: 0; }
+  margin: 0 8px; }
 
 /*# sourceMappingURL=main.css.map */

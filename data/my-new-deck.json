@@ -5,7 +5,8 @@
   "slides": [
     {
       "title": "The First Slide of All Time",
-      "body": "#A header for the first slide"
+      "body": "#A header for the first slide",
+      "style": "Markdown"
     },
     {
       "title": "The Last Slide Ever Made",
