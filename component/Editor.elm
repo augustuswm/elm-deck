@@ -4,7 +4,7 @@ import Array exposing (get)
 import List exposing (head)
 import Maybe
 import Html exposing (..)
-import Html.Attributes exposing (classList, key, property, value)
+import Html.Attributes exposing (classList, href, key, property, rel, value)
 import Html.Events exposing (on, onClick, onFocus, onBlur, targetValue)
 import Json.Encode exposing (string)
 import Maybe
@@ -20,6 +20,81 @@ type alias Editor =
   { editing : EditingState
   , focused : FocusState
   }
+
+themes : List String
+themes =
+  [ "agate"
+  , "androidstudio"
+  , "arduino-light"
+  , "arta"
+  , "ascetic"
+  , "atelier-cave-dark"
+  , "atelier-cave-light"
+  , "atelier-dune-dark"
+  , "atelier-dune-light"
+  , "atelier-estuary-dark"
+  , "atelier-estuary-light"
+  , "atelier-forest-dark"
+  , "atelier-forest-light"
+  , "atelier-heath-dark"
+  , "atelier-heath-light"
+  , "atelier-lakeside-dark"
+  , "atelier-lakeside-light"
+  , "atelier-plateau-dark"
+  , "atelier-plateau-light"
+  , "atelier-savanna-dark"
+  , "atelier-savanna-light"
+  , "atelier-seaside-dark"
+  , "atelier-seaside-light"
+  , "atelier-sulphurpool-dark"
+  , "atelier-sulphurpool-light"
+  , "brown-paper"
+  , "codepen-embed"
+  , "color-brewer"
+  , "dark"
+  , "darkula"
+  , "default"
+  , "docco"
+  , "dracula"
+  , "far"
+  , "foundation"
+  , "github-gist"
+  , "github"
+  , "googlecode"
+  , "grayscale"
+  , "gruvbox-dark"
+  , "gruvbox-light"
+  , "hopscotch"
+  , "hybrid"
+  , "idea"
+  , "ir-black"
+  , "kimbie.dark"
+  , "kimbie.light"
+  , "magula"
+  , "mono-blue"
+  , "monokai-sublime"
+  , "monokai"
+  , "obsidian"
+  , "paraiso-dark"
+  , "paraiso-light"
+  , "pojoaque"
+  , "qtcreator_dark"
+  , "qtcreator_light"
+  , "railscasts"
+  , "rainbow"
+  , "school-book"
+  , "solarized-dark"
+  , "solarized-light"
+  , "sunburst"
+  , "tomorrow-night-blue"
+  , "tomorrow-night-bright"
+  , "tomorrow-night-eighties"
+  , "tomorrow-night"
+  , "tomorrow"
+  , "vs"
+  , "xcode"
+  , "zenburn"
+  ]
 
 -- Actions
 
@@ -48,14 +123,18 @@ update action editor =
 
 -- View
 
-onInput : Signal.Address a -> (String -> a) -> Attribute
-onInput address contentToValue =
-    on "input" targetValue (\str -> Signal.message address (contentToValue str))
+viewTheme : String -> Html
+viewTheme theme =
+  node "link"
+  [ rel "stylesheet"
+  , href ("/assets/css/code/" ++ theme ++ ".css")
+  ] []
 
-view: Signal.Address Action -> (Editor, Deck) -> Html
+view : Signal.Address Action -> (Editor, Deck) -> Html
 view address (editor, deck) =
   let
-    slide = Maybe.withDefault (Slide "" "") <| get (Maybe.withDefault 0 (head deck.history)) deck.slides
+    slide = Maybe.withDefault (Slide "" "")
+      <| get (Maybe.withDefault 0 (head deck.history)) deck.slides
     tools = [
       Component.Tools.Add [ onClick address AddSlide ]
     ]

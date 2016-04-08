@@ -5,7 +5,7 @@
   "slides": [
     {
       "title": "The First Slide of All Time",
-      "body": "#A header for the first slide",
+      "body": "#A header for the first slide \n \n<code class='hljs language-javascript'>\nvar x = function y(z) {<br/>  return z + 1;<br/>}\n</code>\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent in mauris non magna molestie convallis. Integer hendrerit erat eu ex luctus, eget varius elit ultrices. Nulla sed finibus nibh. Morbi quis aliquet tellus. Pellentesque massa augue, auctor quis mauris quis, commodo scelerisque neque. Sed sit amet metus bibendum, fermentum neque sit amet, tempor tellus. In porta ipsum rhoncus purus mollis, non maximus lacus elementum. Praesent pellentesque ut nibh et condimentum. Vestibulum finibus est nec turpis ultricies auctor. Phasellus et turpis nec est sollicitudin euismod at vel lorem. Integer mi enim, consectetur non consectetur mattis, euismod sed nulla. Mauris pulvinar placerat metus et accumsan. Phasellus sagittis lacinia efficitur.",
       "style": "Markdown"
     },
     {

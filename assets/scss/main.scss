@@ -18,10 +18,24 @@ $slide-background-color: $base-color;
 $slide-overlay-color: rgba(0, 0, 0, 0.1);
 $slide-overlay-border-color: rgba(0, 0, 0, 0.5);
 
+$flyout-overlay-background-color: rgba(0, 0, 0, 0.85);
+
 $border-color: transparentize($slide-background-color, 0.9);
 $interaction-border-color: transparentize($interaction-color, 0.5);
 
 $button-color: $border-color;
+
+@font-face {
+  font-family: "Source Code Pro";
+  font-weight: 400;
+  font-style: normal;
+  font-stretch: normal;
+  src: url("../fonts/eot/SourceCodePro-Regular.eot") format("embedded-opentype"),
+  url("../fonts/woff2/ttf/SourceCodePro-Regular.ttf.woff2") format("woff2"),
+  url("../fonts/woff/otf/SourceCodePro-Regular.otf.woff") format("woff"),
+  url("../fonts/otf/SourceCodePro-Regular.otf") format("opentype"),
+  url("../fonts/ttf/SourceCodePro-Regular.ttf") format("truetype");
+}
 
 * {
   box-sizing: border-box;
@@ -29,6 +43,12 @@ $button-color: $border-color;
 
 body {
   background-image: url(../img/black_mamba.jpg);
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+}
+
+p {
+  line-height: 1.5rem;
 }
 
 a {
@@ -81,10 +101,20 @@ textarea {
   padding: $small-gutter;
   border: 1px solid $input-border-color;
   outline: 0;
+  font-family: "Source Code Pro", "Lucida Console", Monaco, monospace;
 
   &:focus {
     border-color: $interaction-color;
   }
+}
+
+pre, code {
+  font-family: "Source Code Pro", "Lucida Console", Monaco, monospace;
+}
+
+@mixin transitionTime {
+  transition-duration: $transition-color-duration;
+  transition-timing-function: $transition-color-timing;
 }
 
 .app-container {
@@ -111,8 +141,7 @@ textarea {
   font-size: 1rem;
   transform: translate(-50%, -50%);
   transition: width, left, font-size, transform;
-  transition-duration: $transition-color-duration;
-  transition-timing-function: $transition-color-timing;
+  @include transitionTime;
 
   &::before {
     content: "";
@@ -122,7 +151,7 @@ textarea {
   }
 
   &.deck-editor-wrapper {
-    width: 0%;
+    width: 0;
     
     .deck-tools {
 
@@ -161,8 +190,7 @@ textarea {
   border: $gutter solid $border-color;
   overflow: hidden;
   transition: border-color;
-  transition-duration: $transition-color-duration;
-  transition-timing-function: $transition-color-timing;
+  @include transitionTime;
 
   &.is-focused {
     border-color: $interaction-border-color;
@@ -252,4 +280,47 @@ textarea {
 .sub-control {
   float: left;
   margin: 0 $small-gutter;
+
+  & > .sub-action.active {
+    background-color: $interaction-color;
+  }
+}
+
+.theme-menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  padding: $gutter $small-gutter;
+  background: $flyout-overlay-background-color;
+  box-shadow: rgba(0, 0, 0, 1) 5px 0 15px 5px;
+  color: $base-color;
+  overflow: scroll;
+  transition: transform;
+  @include transitionTime;
+
+  &.hidden {
+    transform: translate(100%, 0);
+  }
+
+  & > .theme-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    & > .theme {
+      padding: $xsmall-gutter;
+      transition: color;
+      @include transitionTime;
+
+      & > .theme-label {
+        padding-left: $xsmall-gutter;
+      }
+
+      &:hover {
+        background-color: $interaction-color;
+        cursor: pointer;
+      }
+    }
+  }
 }

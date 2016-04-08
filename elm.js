@@ -5421,6 +5421,187 @@ Elm.Signal.make = function (_elm) {
                                ,forwardTo: forwardTo
                                ,Mailbox: Mailbox};
 };
+Elm.Signal = Elm.Signal || {};
+Elm.Signal.Discrete = Elm.Signal.Discrete || {};
+Elm.Signal.Discrete.make = function (_elm) {
+   "use strict";
+   _elm.Signal = _elm.Signal || {};
+   _elm.Signal.Discrete = _elm.Signal.Discrete || {};
+   if (_elm.Signal.Discrete.values) return _elm.Signal.Discrete.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var folde = F3(function (step,base,evt) {    return A3($Signal.foldp,F2(function (_p0,b) {    return step(b);}),base,evt);});
+   var es = $Signal.map($Basics.always({ctor: "_Tuple0"}));
+   var whenEqual = F2(function (value,input) {
+      var keepIf = $Signal.filter;
+      var matchEvent = A3(keepIf,F2(function (x,y) {    return _U.eq(x,y);})(value),value,input);
+      return es(matchEvent);
+   });
+   var whenChangeTo = F2(function (value,input) {    return A2(whenEqual,value,$Signal.dropRepeats(input));});
+   var whenChange = function (input) {    return es($Signal.dropRepeats(input));};
+   return _elm.Signal.Discrete.values = {_op: _op,es: es,whenEqual: whenEqual,whenChange: whenChange,whenChangeTo: whenChangeTo,folde: folde};
+};
+Elm.Signal = Elm.Signal || {};
+Elm.Signal.Extra = Elm.Signal.Extra || {};
+Elm.Signal.Extra.make = function (_elm) {
+   "use strict";
+   _elm.Signal = _elm.Signal || {};
+   _elm.Signal.Extra = _elm.Signal.Extra || {};
+   if (_elm.Signal.Extra.values) return _elm.Signal.Extra.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var unsafeFromJust = function (maybe) {
+      var _p0 = maybe;
+      if (_p0.ctor === "Just") {
+            return _p0._0;
+         } else {
+            return _U.crashCase("Signal.Extra",{start: {line: 510,column: 3},end: {line: 515,column: 59}},_p0)("This case should have been unreachable");
+         }
+   };
+   var passiveMap2 = F2(function (func,a) {    return function (_p2) {    return A3($Signal.map2,func,a,A2($Signal.sampleOn,a,_p2));};});
+   var withPassive = passiveMap2(F2(function (x,y) {    return x(y);}));
+   var combine = A2($List.foldr,$Signal.map2(F2(function (x,y) {    return A2($List._op["::"],x,y);})),$Signal.constant(_U.list([])));
+   var mergeMany = F2(function (original,others) {    return A3($List.foldl,$Signal.merge,original,others);});
+   var filter = function (initial) {    return A2($Signal.filterMap,$Basics.identity,initial);};
+   var keepIf = $Signal.filter;
+   var runBuffer$ = F3(function (l,n,input) {
+      var f = F2(function (inp,prev) {
+         var l = $List.length(prev);
+         return _U.cmp(l,n) < 0 ? A2($Basics._op["++"],prev,_U.list([inp])) : A2($Basics._op["++"],A2($List.drop,l - n + 1,prev),_U.list([inp]));
+      });
+      return A3($Signal.foldp,f,l,input);
+   });
+   var runBuffer = runBuffer$(_U.list([]));
+   var initSignal = function (s) {    return A2($Signal.sampleOn,$Signal.constant({ctor: "_Tuple0"}),s);};
+   var zip4 = $Signal.map4(F4(function (v0,v1,v2,v3) {    return {ctor: "_Tuple4",_0: v0,_1: v1,_2: v2,_3: v3};}));
+   var zip3 = $Signal.map3(F3(function (v0,v1,v2) {    return {ctor: "_Tuple3",_0: v0,_1: v1,_2: v2};}));
+   var zip = $Signal.map2(F2(function (v0,v1) {    return {ctor: "_Tuple2",_0: v0,_1: v1};}));
+   var keepWhen = F3(function (boolSig,a,aSig) {
+      return A2($Signal.map,$Basics.snd,A3(keepIf,$Basics.fst,{ctor: "_Tuple2",_0: true,_1: a},A2($Signal.sampleOn,aSig,A2(zip,boolSig,aSig))));
+   });
+   var sampleWhen = F3(function (bs,def,sig) {
+      return A2($Signal.map,$Basics.snd,A3(keepIf,$Basics.fst,{ctor: "_Tuple2",_0: true,_1: def},A2(zip,bs,sig)));
+   });
+   var andMap = $Signal.map2(F2(function (x,y) {    return x(y);}));
+   _op["~"] = andMap;
+   var applyMany = F2(function (fs,l) {    return A2(_op["~"],fs,combine(l));});
+   _op["~>"] = $Basics.flip($Signal.map);
+   var foldpWith = F4(function (unpack,step,init,input) {
+      var step$ = F2(function (a,_p3) {    var _p4 = _p3;return unpack(A2(step,a,_p4._1));});
+      return A2(_op["~>"],A3($Signal.foldp,step$,init,input),$Basics.fst);
+   });
+   _op["<~"] = $Signal.map;
+   var unzip = function (pairS) {    return {ctor: "_Tuple2",_0: A2(_op["<~"],$Basics.fst,pairS),_1: A2(_op["<~"],$Basics.snd,pairS)};};
+   var unzip3 = function (pairS) {
+      return {ctor: "_Tuple3"
+             ,_0: A2(_op["<~"],function (_p5) {    var _p6 = _p5;return _p6._0;},pairS)
+             ,_1: A2(_op["<~"],function (_p7) {    var _p8 = _p7;return _p8._1;},pairS)
+             ,_2: A2(_op["<~"],function (_p9) {    var _p10 = _p9;return _p10._2;},pairS)};
+   };
+   var unzip4 = function (pairS) {
+      return {ctor: "_Tuple4"
+             ,_0: A2(_op["<~"],function (_p11) {    var _p12 = _p11;return _p12._0;},pairS)
+             ,_1: A2(_op["<~"],function (_p13) {    var _p14 = _p13;return _p14._1;},pairS)
+             ,_2: A2(_op["<~"],function (_p15) {    var _p16 = _p15;return _p16._2;},pairS)
+             ,_3: A2(_op["<~"],function (_p17) {    var _p18 = _p17;return _p18._3;},pairS)};
+   };
+   var foldp$ = F3(function (fun,initFun,input) {
+      var fun$ = F2(function (_p19,mb) {    var _p20 = _p19;return $Maybe.Just(A2(fun,_p20._0,A2($Maybe.withDefault,_p20._1,mb)));});
+      var initial = A2(_op["~>"],initSignal(input),initFun);
+      var rest = A3($Signal.foldp,fun$,$Maybe.Nothing,A2(zip,input,initial));
+      return A2(_op["<~"],unsafeFromJust,A2($Signal.merge,A2(_op["<~"],$Maybe.Just,initial),rest));
+   });
+   var deltas = function (signal) {
+      var initial = function (value) {    return {ctor: "_Tuple2",_0: value,_1: value};};
+      var step = F2(function (value,delta) {    return {ctor: "_Tuple2",_0: $Basics.snd(delta),_1: value};});
+      return A3(foldp$,step,initial,signal);
+   };
+   var foldps = F3(function (f,bs,aS) {
+      return A2(_op["<~"],$Basics.fst,A3($Signal.foldp,F2(function (a,_p21) {    var _p22 = _p21;return A2(f,a,_p22._1);}),bs,aS));
+   });
+   var delayRound = F2(function (b,bS) {
+      return A3(foldps,F2(function ($new,old) {    return {ctor: "_Tuple2",_0: old,_1: $new};}),{ctor: "_Tuple2",_0: b,_1: b},bS);
+   });
+   var filterFold = F2(function (f,initial) {
+      var f$ = F2(function (a,s) {    var res = A2(f,a,s);return {ctor: "_Tuple2",_0: res,_1: A2($Maybe.withDefault,s,res)};});
+      return function (_p23) {
+         return A2(filter,initial,A3(foldps,f$,{ctor: "_Tuple2",_0: $Maybe.Just(initial),_1: initial},_p23));
+      };
+   });
+   var foldps$ = F3(function (f,iF,aS) {
+      return A2(_op["<~"],$Basics.fst,A3(foldp$,F2(function (a,_p24) {    var _p25 = _p24;return A2(f,a,_p25._1);}),iF,aS));
+   });
+   var switchHelper = F4(function (filter,b,l,r) {
+      var lAndR = A2($Signal.merge,
+      A3(filter,b,$Maybe.Nothing,A2(_op["<~"],$Maybe.Just,l)),
+      A3(filter,A2(_op["<~"],$Basics.not,b),$Maybe.Nothing,A2(_op["<~"],$Maybe.Just,r)));
+      var base = A2(_op["~"],
+      A2(_op["~"],A2(_op["<~"],F3(function (bi,li,ri) {    return $Maybe.Just(bi ? li : ri);}),initSignal(b)),initSignal(l)),
+      initSignal(r));
+      return A2(_op["<~"],unsafeFromJust,A2($Signal.merge,base,lAndR));
+   });
+   var switchWhen = F3(function (b,l,r) {    return A4(switchHelper,keepWhen,b,l,r);});
+   var switchSample = F3(function (b,l,r) {    return A4(switchHelper,sampleWhen,b,l,r);});
+   var keepThen = F3(function (choice,base,signal) {    return A3(switchSample,choice,signal,$Signal.constant(base));});
+   var keepWhenI = F2(function (fs,s) {
+      return A2(_op["~>"],A3(keepWhen,A2($Signal.merge,$Signal.constant(true),fs),$Maybe.Nothing,A2(_op["<~"],$Maybe.Just,s)),unsafeFromJust);
+   });
+   var fairMerge = F3(function (resolve,left,right) {
+      var merged = A2($Signal.merge,left,right);
+      var boolRight = A2(_op["<~"],$Basics.always(false),right);
+      var boolLeft = A2(_op["<~"],$Basics.always(true),left);
+      var bothUpdated = A2(_op["~"],
+      A2(_op["<~"],F2(function (x,y) {    return !_U.eq(x,y);}),A2($Signal.merge,boolLeft,boolRight)),
+      A2($Signal.merge,boolRight,boolLeft));
+      var keep = keepWhenI(bothUpdated);
+      var resolved = A2(_op["~"],A2(_op["<~"],resolve,keep(left)),keep(right));
+      return A2($Signal.merge,resolved,merged);
+   });
+   var mapMany = F2(function (f,l) {    return A2(_op["<~"],f,combine(l));});
+   return _elm.Signal.Extra.values = {_op: _op
+                                     ,andMap: andMap
+                                     ,zip: zip
+                                     ,zip3: zip3
+                                     ,zip4: zip4
+                                     ,unzip: unzip
+                                     ,unzip3: unzip3
+                                     ,unzip4: unzip4
+                                     ,foldp$: foldp$
+                                     ,foldps: foldps
+                                     ,foldps$: foldps$
+                                     ,runBuffer: runBuffer
+                                     ,runBuffer$: runBuffer$
+                                     ,deltas: deltas
+                                     ,delayRound: delayRound
+                                     ,keepIf: keepIf
+                                     ,keepWhen: keepWhen
+                                     ,sampleWhen: sampleWhen
+                                     ,switchWhen: switchWhen
+                                     ,keepWhenI: keepWhenI
+                                     ,switchSample: switchSample
+                                     ,keepThen: keepThen
+                                     ,filter: filter
+                                     ,filterFold: filterFold
+                                     ,fairMerge: fairMerge
+                                     ,mergeMany: mergeMany
+                                     ,combine: combine
+                                     ,mapMany: mapMany
+                                     ,applyMany: applyMany
+                                     ,passiveMap2: passiveMap2
+                                     ,withPassive: withPassive};
+};
 Elm.Native.Time = {};
 
 Elm.Native.Time.make = function(localRuntime)
@@ -5576,6 +5757,126 @@ Elm.Time.make = function (_elm) {
                              ,timestamp: timestamp
                              ,delay: delay
                              ,since: since};
+};
+Elm.Signal = Elm.Signal || {};
+Elm.Signal.Time = Elm.Signal.Time || {};
+Elm.Signal.Time.make = function (_elm) {
+   "use strict";
+   _elm.Signal = _elm.Signal || {};
+   _elm.Signal.Time = _elm.Signal.Time || {};
+   if (_elm.Signal.Time.values) return _elm.Signal.Time.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Signal$Discrete = Elm.Signal.Discrete.make(_elm),
+   $Signal$Extra = Elm.Signal.Extra.make(_elm),
+   $Time = Elm.Time.make(_elm);
+   var _op = {};
+   var timestamp = $Time.timestamp;
+   var delay = $Time.delay;
+   var since = $Time.since;
+   var settledAfter = F2(function (delay,sig) {
+      var trailing = A2($Signal$Discrete.whenChangeTo,false,A2(since,delay,sig));
+      return A2($Signal.sampleOn,trailing,sig);
+   });
+   var dropWithin = F2(function (delay,sig) {
+      var leading = A2($Signal$Discrete.whenChangeTo,true,A2(since,delay,sig));
+      return A2($Signal.sampleOn,leading,sig);
+   });
+   var timestamps = function (s) {    return A2($Signal$Extra._op["~>"],timestamp(s),$Basics.fst);};
+   var limitRate = F2(function (period,sig) {
+      var within = F2(function (newt,oldt) {    return _U.cmp(newt - oldt,period) > 0 ? newt : oldt;});
+      var windowStart = A3($Signal.foldp,within,0,timestamps(sig));
+      return A2($Signal.sampleOn,$Signal$Discrete.whenChange(windowStart),sig);
+   });
+   var startTime = timestamps($Signal.constant({ctor: "_Tuple0"}));
+   var relativeTime = function (s) {    return A2($Signal$Extra._op["~"],A2($Signal$Extra._op["<~"],F2(function (x,y) {    return x - y;}),s),startTime);};
+   return _elm.Signal.Time.values = {_op: _op
+                                    ,limitRate: limitRate
+                                    ,dropWithin: dropWithin
+                                    ,settledAfter: settledAfter
+                                    ,startTime: startTime
+                                    ,relativeTime: relativeTime
+                                    ,since: since
+                                    ,delay: delay
+                                    ,timestamp: timestamp};
+};
+Elm.Signal = Elm.Signal || {};
+Elm.Signal.Stream = Elm.Signal.Stream || {};
+Elm.Signal.Stream.make = function (_elm) {
+   "use strict";
+   _elm.Signal = _elm.Signal || {};
+   _elm.Signal.Stream = _elm.Signal.Stream || {};
+   if (_elm.Signal.Stream.values) return _elm.Signal.Stream.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Signal$Extra = Elm.Signal.Extra.make(_elm),
+   $Signal$Time = Elm.Signal.Time.make(_elm);
+   var _op = {};
+   var timestamp = function (_p0) {
+      return A2($Signal.map,
+      function (_p1) {
+         var _p2 = _p1;
+         return A2($Maybe.map,function (a) {    return {ctor: "_Tuple2",_0: _p2._0,_1: a};},_p2._1);
+      },
+      $Signal$Time.timestamp(_p0));
+   };
+   var never = $Signal.constant($Maybe.Nothing);
+   var filter = function (str) {    return A2($Signal$Extra.filter,$Maybe.Nothing,str);};
+   var fromSignal = function (sig) {    return A2($Signal.merge,$Signal.constant($Maybe.Nothing),A2($Signal$Extra._op["<~"],$Maybe.Just,sig));};
+   var init = function (sig) {    return A2($Signal.sampleOn,$Signal.constant({ctor: "_Tuple0"}),sig);};
+   var map = function (f) {    return $Signal.map($Maybe.map(f));};
+   var filterMap = function (f) {    return function (_p3) {    return filter(A2(map,f,_p3));};};
+   var keepIf = F2(function (isOk,stream) {    return A2(filterMap,function (v) {    return isOk(v) ? $Maybe.Just(v) : $Maybe.Nothing;},stream);});
+   var maybeMap2 = F3(function (f,l,r) {
+      var _p4 = {ctor: "_Tuple2",_0: l,_1: r};
+      if (_p4.ctor === "_Tuple2" && _p4._0.ctor === "Just" && _p4._1.ctor === "Just") {
+            return $Maybe.Just(A2(f,_p4._0._0,_p4._1._0));
+         } else {
+            return $Maybe.Nothing;
+         }
+   });
+   var fairMerge = function (f) {    return $Signal$Extra.fairMerge(maybeMap2(f));};
+   var merge = fairMerge(F2(function (l,_p5) {    return l;}));
+   var mergeMany = A2($List.foldr,merge,never);
+   var sample = F3(function (f,signal,events) {    return A3($Signal.map2,maybeMap2(f),A2($Signal$Extra._op["<~"],$Maybe.Just,signal),events);});
+   var fromJust = function (m) {
+      var _p6 = m;
+      if (_p6.ctor === "Just") {
+            return _p6._0;
+         } else {
+            return _U.crashCase("Signal.Stream",{start: {line: 45,column: 3},end: {line: 51,column: 34}},_p6)(A2($Basics._op["++"],
+            "There was an implementation error somewhere in ",
+            A2($Basics._op["++"],
+            "Signal.Stream. If you\'re using the latest version of ",
+            A2($Basics._op["++"],"Apanatshka/elm-signal-extra, please file an issue (if there isn\'t ","such an issue yet). "))));
+         }
+   };
+   var toSignal = F2(function (a,str) {    return A2($Signal$Extra._op["~>"],A2($Signal.merge,$Signal.constant($Maybe.Just(a)),str),fromJust);});
+   var fold = F3(function (f,b,str) {    return A3($Signal.foldp,function (_p8) {    return f(fromJust(_p8));},b,str);});
+   return _elm.Signal.Stream.values = {_op: _op
+                                      ,map: map
+                                      ,fairMerge: fairMerge
+                                      ,merge: merge
+                                      ,mergeMany: mergeMany
+                                      ,fold: fold
+                                      ,filterMap: filterMap
+                                      ,filter: filter
+                                      ,keepIf: keepIf
+                                      ,sample: sample
+                                      ,never: never
+                                      ,timestamp: timestamp
+                                      ,toSignal: toSignal
+                                      ,fromSignal: fromSignal};
 };
 Elm.Native.Array = {};
 Elm.Native.Array.make = function(localRuntime) {
@@ -11308,51 +11609,31 @@ Elm.Component.Tools.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
+   var makeTool = F3(function (toolTitle,icon,attributes) {
+      return A2($Html.a,
+      attributes,
+      _U.list([A2($Html.i,
+      _U.list([$Html$Attributes.title(toolTitle)
+              ,$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa",_1: true},{ctor: "_Tuple2",_0: A2($Basics._op["++"],"fa-",icon),_1: true}]))]),
+      _U.list([]))]));
+   });
+   var defafultAttributes = F2(function ($class,active) {
+      return _U.list([$Html$Attributes.href("#")
+                     ,$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-action",_1: true}
+                                                         ,{ctor: "_Tuple2",_0: $class,_1: true}
+                                                         ,{ctor: "_Tuple2",_0: "active",_1: active}]))]);
+   });
+   var mergeAttributes = F3(function ($class,active,attributes) {    return A2($List.append,A2(defafultAttributes,$class,active),attributes);});
    var viewTool = function (tool) {
       var _p0 = tool;
       switch (_p0.ctor)
-      {case "Add": return A2($Html.a,
-           A2($List.append,
-           _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-add",_1: true}]))]),
-           _p0._0),
-           _U.list([A2($Html.i,
-           _U.list([$Html$Attributes.title("Add"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-plus",_1: true}]))]),
-           _U.list([]))]));
-         case "Edit": return A2($Html.a,
-           A2($List.append,
-           _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-edit",_1: true}]))]),
-           _p0._0),
-           _U.list([A2($Html.i,
-           _U.list([$Html$Attributes.title("Edit"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-pencil",_1: true}]))]),
-           _U.list([]))]));
-         case "Delete": return A2($Html.a,
-           A2($List.append,
-           _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-delete",_1: true}]))]),
-           _p0._0),
-           _U.list([A2($Html.i,
-           _U.list([$Html$Attributes.title("Delete"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-times",_1: true}]))]),
-           _U.list([]))]));
-         case "Fullscreen": return A2($Html.a,
-           A2($List.append,
-           _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-fullscreen",_1: true}]))]),
-           _p0._0),
-           _U.list([A2($Html.i,
-           _U.list([$Html$Attributes.title("Fullscreen"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-arrows-alt",_1: true}]))]),
-           _U.list([]))]));
-         case "Forward": return A2($Html.a,
-           A2($List.append,
-           _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-forward",_1: true}]))]),
-           _p0._0),
-           _U.list([A2($Html.i,
-           _U.list([$Html$Attributes.title("Forward"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-angle-right",_1: true}]))]),
-           _U.list([]))]));
-         default: return A2($Html.a,
-           A2($List.append,
-           _U.list([$Html$Attributes.href("#"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-control-backward",_1: true}]))]),
-           _p0._0),
-           _U.list([A2($Html.i,
-           _U.list([$Html$Attributes.title("Backward"),$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-angle-left",_1: true}]))]),
-           _U.list([]))]));}
+      {case "Add": return A3(makeTool,"Add","plus",A3(mergeAttributes,"sub-control-add",false,_p0._0));
+         case "Edit": return A3(makeTool,"Edit","pencil",A3(mergeAttributes,"sub-control-edit",_p0._1,_p0._0));
+         case "Delete": return A3(makeTool,"Delete","times",A3(mergeAttributes,"sub-control-delete",false,_p0._0));
+         case "Fullscreen": return A3(makeTool,"Fullscreen","arrows-alt",A3(mergeAttributes,"sub-control-fullscreen",_p0._1,_p0._0));
+         case "Forward": return A3(makeTool,"Forward","angle-right",A3(mergeAttributes,"sub-control-forward",false,_p0._0));
+         case "Backward": return A3(makeTool,"Backward","angle-left",A3(mergeAttributes,"sub-control-backward",false,_p0._0));
+         default: return A3(makeTool,"Theme","paint-brush",A3(mergeAttributes,"sub-control-theme",_p0._1,_p0._0));}
    };
    var view = function (tools) {
       return A2($Html.ul,
@@ -11363,11 +11644,12 @@ Elm.Component.Tools.make = function (_elm) {
       },
       A2($List.map,viewTool,tools)));
    };
+   var Theme = F2(function (a,b) {    return {ctor: "Theme",_0: a,_1: b};});
    var Backward = function (a) {    return {ctor: "Backward",_0: a};};
    var Forward = function (a) {    return {ctor: "Forward",_0: a};};
-   var Fullscreen = function (a) {    return {ctor: "Fullscreen",_0: a};};
+   var Fullscreen = F2(function (a,b) {    return {ctor: "Fullscreen",_0: a,_1: b};});
    var Delete = function (a) {    return {ctor: "Delete",_0: a};};
-   var Edit = function (a) {    return {ctor: "Edit",_0: a};};
+   var Edit = F2(function (a,b) {    return {ctor: "Edit",_0: a,_1: b};});
    var Add = function (a) {    return {ctor: "Add",_0: a};};
    return _elm.Component.Tools.values = {_op: _op
                                         ,Add: Add
@@ -11376,6 +11658,10 @@ Elm.Component.Tools.make = function (_elm) {
                                         ,Fullscreen: Fullscreen
                                         ,Forward: Forward
                                         ,Backward: Backward
+                                        ,Theme: Theme
+                                        ,defafultAttributes: defafultAttributes
+                                        ,mergeAttributes: mergeAttributes
+                                        ,makeTool: makeTool
                                         ,viewTool: viewTool
                                         ,view: view};
 };
@@ -11553,9 +11839,12 @@ Elm.Component.Editor.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var onInput = F2(function (address,contentToValue) {
-      return A3($Html$Events.on,"input",$Html$Events.targetValue,function (str) {    return A2($Signal.message,address,contentToValue(str));});
-   });
+   var viewTheme = function (theme) {
+      return A3($Html.node,
+      "link",
+      _U.list([$Html$Attributes.rel("stylesheet"),$Html$Attributes.href(A2($Basics._op["++"],"/assets/css/code/",A2($Basics._op["++"],theme,".css")))]),
+      _U.list([]));
+   };
    var update = F2(function (action,editor) {
       var _p0 = action;
       switch (_p0.ctor)
@@ -11601,16 +11890,88 @@ Elm.Component.Editor.make = function (_elm) {
               _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "deck-tools",_1: true}]))]),
               _U.list([$Component$Tools.view(tools)]))]));
    });
+   var themes = _U.list(["agate"
+                        ,"androidstudio"
+                        ,"arduino-light"
+                        ,"arta"
+                        ,"ascetic"
+                        ,"atelier-cave-dark"
+                        ,"atelier-cave-light"
+                        ,"atelier-dune-dark"
+                        ,"atelier-dune-light"
+                        ,"atelier-estuary-dark"
+                        ,"atelier-estuary-light"
+                        ,"atelier-forest-dark"
+                        ,"atelier-forest-light"
+                        ,"atelier-heath-dark"
+                        ,"atelier-heath-light"
+                        ,"atelier-lakeside-dark"
+                        ,"atelier-lakeside-light"
+                        ,"atelier-plateau-dark"
+                        ,"atelier-plateau-light"
+                        ,"atelier-savanna-dark"
+                        ,"atelier-savanna-light"
+                        ,"atelier-seaside-dark"
+                        ,"atelier-seaside-light"
+                        ,"atelier-sulphurpool-dark"
+                        ,"atelier-sulphurpool-light"
+                        ,"brown-paper"
+                        ,"codepen-embed"
+                        ,"color-brewer"
+                        ,"dark"
+                        ,"darkula"
+                        ,"default"
+                        ,"docco"
+                        ,"dracula"
+                        ,"far"
+                        ,"foundation"
+                        ,"github-gist"
+                        ,"github"
+                        ,"googlecode"
+                        ,"grayscale"
+                        ,"gruvbox-dark"
+                        ,"gruvbox-light"
+                        ,"hopscotch"
+                        ,"hybrid"
+                        ,"idea"
+                        ,"ir-black"
+                        ,"kimbie.dark"
+                        ,"kimbie.light"
+                        ,"magula"
+                        ,"mono-blue"
+                        ,"monokai-sublime"
+                        ,"monokai"
+                        ,"obsidian"
+                        ,"paraiso-dark"
+                        ,"paraiso-light"
+                        ,"pojoaque"
+                        ,"qtcreator_dark"
+                        ,"qtcreator_light"
+                        ,"railscasts"
+                        ,"rainbow"
+                        ,"school-book"
+                        ,"solarized-dark"
+                        ,"solarized-light"
+                        ,"sunburst"
+                        ,"tomorrow-night-blue"
+                        ,"tomorrow-night-bright"
+                        ,"tomorrow-night-eighties"
+                        ,"tomorrow-night"
+                        ,"tomorrow"
+                        ,"vs"
+                        ,"xcode"
+                        ,"zenburn"]);
    var Editor = F2(function (a,b) {    return {editing: a,focused: b};});
    return _elm.Component.Editor.values = {_op: _op
                                          ,Editor: Editor
+                                         ,themes: themes
                                          ,SetFocus: SetFocus
                                          ,ToggleEditing: ToggleEditing
                                          ,UpdateTitle: UpdateTitle
                                          ,UpdateBody: UpdateBody
                                          ,AddSlide: AddSlide
                                          ,update: update
-                                         ,onInput: onInput
+                                         ,viewTheme: viewTheme
                                          ,view: view};
 };
 Elm.Set = Elm.Set || {};
@@ -11773,11 +12134,11 @@ Elm.Keyboard.make = function (_elm) {
                                  ,keysDown: keysDown
                                  ,presses: presses};
 };
-Elm.StartApp = Elm.StartApp || {};
-Elm.StartApp.make = function (_elm) {
+Elm.Runner = Elm.Runner || {};
+Elm.Runner.make = function (_elm) {
    "use strict";
-   _elm.StartApp = _elm.StartApp || {};
-   if (_elm.StartApp.values) return _elm.StartApp.values;
+   _elm.Runner = _elm.Runner || {};
+   if (_elm.Runner.values) return _elm.Runner.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
@@ -11810,7 +12171,7 @@ Elm.StartApp.make = function (_elm) {
    };
    var App = F3(function (a,b,c) {    return {html: a,model: b,tasks: c};});
    var Config = F4(function (a,b,c,d) {    return {init: a,update: b,view: c,inputs: d};});
-   return _elm.StartApp.values = {_op: _op,start: start,Config: Config,App: App};
+   return _elm.Runner.values = {_op: _op,start: start,Config: Config,App: App};
 };
 Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
@@ -11833,102 +12194,135 @@ Elm.Main.make = function (_elm) {
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
+   $Runner = Elm.Runner.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $StartApp = Elm.StartApp.make(_elm),
    $Task = Elm.Task.make(_elm);
    var _op = {};
    var EditorAction = function (a) {    return {ctor: "EditorAction",_0: a};};
    var SlideAction = function (a) {    return {ctor: "SlideAction",_0: a};};
    var DeckAction = function (a) {    return {ctor: "DeckAction",_0: a};};
+   var SetFullscreen = function (a) {    return {ctor: "SetFullscreen",_0: a};};
+   var ToggleThemeMenu = {ctor: "ToggleThemeMenu"};
+   var SetTheme = function (a) {    return {ctor: "SetTheme",_0: a};};
    var view = F2(function (address,state) {
-      var tools = _U.list([$Component$Tools.Edit(_U.list([A2($Html$Events.onClick,address,EditorAction($Component$Editor.ToggleEditing))]))
-                          ,$Component$Tools.Fullscreen(_U.list([]))]);
+      var showThemeMenu = $Basics.not(state.editor.editing) && state.themeMenu;
+      var tools = _U.list([A2($Component$Tools.Theme,_U.list([A2($Html$Events.onClick,address,ToggleThemeMenu)]),showThemeMenu)
+                          ,A2($Component$Tools.Edit,
+                          _U.list([A2($Html$Events.onClick,address,EditorAction($Component$Editor.ToggleEditing))]),
+                          state.editor.editing)
+                          ,A2($Component$Tools.Fullscreen,_U.list([]),false)]);
+      var currentThemeMarker = function (theme) {
+         return _U.eq(theme,state.theme) ? A2($Html.i,
+         _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-fw fa-check",_1: true}]))]),
+         _U.list([])) : A2($Html.i,_U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "fa fa-fw",_1: true}]))]),_U.list([$Html.text(" ")]));
+      };
+      var themeToLi = function (theme) {
+         return A2($Html.li,
+         _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "theme",_1: true}])),A2($Html$Events.onClick,address,SetTheme(theme))]),
+         _U.list([currentThemeMarker(theme)
+                 ,A2($Html.span,_U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "theme-label",_1: true}]))]),_U.list([$Html.text(theme)]))]));
+      };
+      var themeMenu = A2($Html.div,
+      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "theme-menu",_1: true}
+                                                  ,{ctor: "_Tuple2",_0: "hidden",_1: $Basics.not(showThemeMenu)}]))]),
+      _U.list([A2($Html.ul,
+      _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "theme-list",_1: true}]))]),
+      A2($List.map,themeToLi,$Component$Editor.themes))]));
+      var theme = $Component$Editor.viewTheme(state.theme);
       var editor = A2($Component$Editor.view,A2($Signal.forwardTo,address,EditorAction),{ctor: "_Tuple2",_0: state.editor,_1: state.deck});
       var deck = A2($Component$Deck.view,A2($Signal.forwardTo,address,DeckAction),state.deck);
+      var singleton = function (x) {    return _U.list([x]);};
       return A2($Html.div,
       _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "app-container",_1: true}
                                                   ,{ctor: "_Tuple2",_0: "is-editing",_1: state.editor.editing}]))]),
-      _U.list([editor
+      _U.list([theme
+              ,editor
               ,deck
               ,A2($Html.div,
               _U.list([$Html$Attributes.classList(_U.list([{ctor: "_Tuple2",_0: "sub-controls-wrapper",_1: true}]))]),
-              _U.list([$Component$Tools.view(tools)]))]));
+              _U.list([$Component$Tools.view(tools)]))
+              ,themeMenu]));
    });
-   var traverse = function () {
-      var keyToAction = function (key) {
-         var _p0 = key;
-         switch (_p0)
-         {case 97: return DeckAction($Component$Deck.Backward);
-            case 100: return DeckAction($Component$Deck.Forward);
-            case 115: return DeckAction($Component$Deck.AddSlide);
-            default: return DeckAction($Component$Deck.NoOp);}
-      };
-      return A2($Signal.map,keyToAction,$Keyboard.presses);
-   }();
-   var SetFullscreen = function (a) {    return {ctor: "SetFullscreen",_0: a};};
    var LoadDeck = function (a) {    return {ctor: "LoadDeck",_0: a};};
    var NoOp = {ctor: "NoOp"};
    var generalizeDeckAction = function (action) {
-      var _p1 = action;
-      if (_p1.ctor === "Load" && _p1._0.ctor === "Just") {
-            return LoadDeck(_p1._0._0);
+      var _p0 = action;
+      if (_p0.ctor === "Load" && _p0._0.ctor === "Just") {
+            return LoadDeck(_p0._0._0);
          } else {
             return NoOp;
          }
    };
    var update = F2(function (action,state) {
       update: while (true) {
-         var _p2 = action;
-         switch (_p2.ctor)
+         var _p1 = action;
+         switch (_p1.ctor)
          {case "NoOp": return {ctor: "_Tuple2",_0: state,_1: $Effects.none};
-            case "LoadDeck": return {ctor: "_Tuple2",_0: _U.update(state,{deck: _p2._0}),_1: $Effects.none};
-            case "SetFullscreen": return {ctor: "_Tuple2",_0: _U.update(state,{fullscreen: _p2._0}),_1: $Effects.none};
+            case "LoadDeck": return {ctor: "_Tuple2",_0: _U.update(state,{deck: _p1._0}),_1: $Effects.none};
+            case "ToggleThemeMenu": return {ctor: "_Tuple2",_0: _U.update(state,{themeMenu: $Basics.not(state.themeMenu)}),_1: $Effects.none};
+            case "SetTheme": return {ctor: "_Tuple2",_0: _U.update(state,{theme: _p1._0}),_1: $Effects.none};
+            case "SetFullscreen": return {ctor: "_Tuple2",_0: _U.update(state,{fullscreen: _p1._0}),_1: $Effects.none};
             case "DeckAction": if (_U.eq(state.editor.focused,false)) {
-                    var _p3 = A2($Component$Deck.update,_p2._0,state.deck);
-                    var deck = _p3._0;
-                    var effect = _p3._1;
+                    var _p2 = A2($Component$Deck.update,_p1._0,state.deck);
+                    var deck = _p2._0;
+                    var effect = _p2._1;
                     return {ctor: "_Tuple2",_0: _U.update(state,{deck: deck}),_1: A2($Effects.map,generalizeDeckAction,effect)};
                  } else return {ctor: "_Tuple2",_0: state,_1: $Effects.none};
-            case "SlideAction": var _p4 = A2($Component$Deck.update,$Component$Deck.SlideAction(_p2._0),state.deck);
-              var deck = _p4._0;
-              var effect = _p4._1;
+            case "SlideAction": var _p3 = A2($Component$Deck.update,$Component$Deck.SlideAction(_p1._0),state.deck);
+              var deck = _p3._0;
+              var effect = _p3._1;
               return {ctor: "_Tuple2",_0: _U.update(state,{deck: deck}),_1: A2($Effects.map,generalizeDeckAction,effect)};
-            default: var _p8 = _p2._0;
-              var _p5 = _p8;
-              switch (_p5.ctor)
-              {case "AddSlide": var _p6 = A2($Component$Deck.update,$Component$Deck.AddSlide,state.deck);
-                   var deck = _p6._0;
-                   var effect = _p6._1;
+            default: var _p7 = _p1._0;
+              var _p4 = _p7;
+              switch (_p4.ctor)
+              {case "AddSlide": var _p5 = A2($Component$Deck.update,$Component$Deck.AddSlide,state.deck);
+                   var deck = _p5._0;
+                   var effect = _p5._1;
                    return {ctor: "_Tuple2",_0: _U.update(state,{deck: deck}),_1: A2($Effects.map,generalizeDeckAction,effect)};
-                 case "UpdateTitle": var _v4 = SlideAction($Component$Slide.UpdateTitle(_p5._0)),_v5 = state;
-                   action = _v4;
-                   state = _v5;
+                 case "UpdateTitle": var _v3 = SlideAction($Component$Slide.UpdateTitle(_p4._0)),_v4 = state;
+                   action = _v3;
+                   state = _v4;
                    continue update;
-                 case "UpdateBody": var _v6 = SlideAction($Component$Slide.UpdateBody(_p5._0)),_v7 = state;
-                   action = _v6;
-                   state = _v7;
+                 case "UpdateBody": var _v5 = SlideAction($Component$Slide.UpdateBody(_p4._0)),_v6 = state;
+                   action = _v5;
+                   state = _v6;
                    continue update;
-                 default: var _p7 = A2($Component$Editor.update,_p8,state.editor);
-                   var editor = _p7._0;
-                   var editorAction = _p7._1;
+                 default: var _p6 = A2($Component$Editor.update,_p7,state.editor);
+                   var editor = _p6._0;
+                   var editorAction = _p6._1;
                    return {ctor: "_Tuple2",_0: _U.update(state,{editor: editor}),_1: $Effects.none};}}
       }
    });
-   var State = F3(function (a,b,c) {    return {deck: a,editor: b,fullscreen: c};});
+   var traverse = function () {
+      var keyToAction = function (key) {
+         var _p8 = key;
+         switch (_p8)
+         {case 97: return $Maybe.Just(DeckAction($Component$Deck.Backward));
+            case 100: return $Maybe.Just(DeckAction($Component$Deck.Forward));
+            case 115: return $Maybe.Just(DeckAction($Component$Deck.AddSlide));
+            case 101: return $Maybe.Just(EditorAction($Component$Editor.ToggleEditing));
+            case 116: return $Maybe.Just(ToggleThemeMenu);
+            default: return $Maybe.Nothing;}
+      };
+      return A3($Signal.filterMap,keyToAction,NoOp,$Keyboard.presses);
+   }();
+   var State = F5(function (a,b,c,d,e) {    return {deck: a,editor: b,theme: c,themeMenu: d,fullscreen: e};});
    var init = function () {
       var editor = A2($Component$Editor.Editor,false,false);
       var _p9 = $Component$Deck.init("My New Deck");
       var deck = _p9._0;
       var effect = _p9._1;
-      return {ctor: "_Tuple2",_0: A3(State,deck,editor,false),_1: A2($Effects.map,generalizeDeckAction,effect)};
+      return {ctor: "_Tuple2",_0: A5(State,deck,editor,"magula",false,false),_1: A2($Effects.map,generalizeDeckAction,effect)};
    }();
-   var app = $StartApp.start({init: init,update: update,view: view,inputs: _U.list([])});
+   var app = $Runner.start({init: init,update: update,view: view,inputs: _U.list([traverse])});
    var main = app.html;
    var tasks = Elm.Native.Task.make(_elm).performSignal("tasks",app.tasks);
    return _elm.Main.values = {_op: _op
                              ,State: State
                              ,NoOp: NoOp
                              ,LoadDeck: LoadDeck
+                             ,SetTheme: SetTheme
+                             ,ToggleThemeMenu: ToggleThemeMenu
                              ,SetFullscreen: SetFullscreen
                              ,DeckAction: DeckAction
                              ,SlideAction: SlideAction

@@ -8,40 +8,64 @@ type alias Tools = List Tool
 
 type Tool =
   Add (List Html.Attribute)
-  | Edit (List Html.Attribute) 
+  | Edit (List Html.Attribute) Bool
   | Delete (List Html.Attribute)
-  | Fullscreen (List Html.Attribute)
+  | Fullscreen (List Html.Attribute) Bool
   | Forward (List Html.Attribute)
   | Backward (List Html.Attribute)
+  | Theme (List Html.Attribute) Bool
 
 -- View
+
+defafultAttributes : String -> Bool -> (List Html.Attribute)
+defafultAttributes class active =
+  [ href "#"
+  , classList [ ("sub-action", True), (class, True), ("active", active) ]
+  ]
+
+mergeAttributes : String -> Bool -> (List Html.Attribute) -> (List Html.Attribute)
+mergeAttributes class active attributes =
+  (append (defafultAttributes class active) attributes)
+
+makeTool : String -> String -> (List Html.Attribute) -> Html
+makeTool toolTitle icon attributes =
+  a attributes
+  [ i
+    [ title toolTitle
+    , classList [ ("fa", True), ("fa-" ++ icon, True) ] 
+    ] []
+  ]
 
 viewTool : Tool -> Html
 viewTool tool =
   case tool of
     Add attributes ->
-      a (append [ href "#", classList [ ("sub-control-add", True) ] ] attributes)
-      [ i [ title "Add", classList [ ("fa fa-plus", True) ] ] [] ]
+      makeTool "Add" "plus"
+        <| mergeAttributes "sub-control-add" False attributes
     
-    Edit attributes ->
-      a (append [ href "#", classList [ ("sub-control-edit", True) ] ] attributes)
-      [ i [ title "Edit", classList [ ("fa fa-pencil", True) ] ] [] ]
+    Edit attributes active ->
+      makeTool "Edit" "pencil"
+        <| mergeAttributes "sub-control-edit" active attributes
     
     Delete attributes ->
-     a (append [ href "#", classList [ ("sub-control-delete", True) ] ] attributes)
-     [ i [ title "Delete", classList [ ("fa fa-times", True) ] ] [] ]
+      makeTool "Delete" "times"
+        <| mergeAttributes "sub-control-delete" False attributes
   
-    Fullscreen attributes ->
-      a (append [ href "#", classList [ ("sub-control-fullscreen", True) ] ] attributes)
-      [ i [ title "Fullscreen", classList [ ("fa fa-arrows-alt", True) ] ] [] ]  
+    Fullscreen attributes active ->
+      makeTool "Fullscreen" "arrows-alt"
+        <| mergeAttributes "sub-control-fullscreen" active attributes  
 
     Forward attributes ->
-      a (append [ href "#", classList [ ("sub-control-forward", True) ] ] attributes)
-      [ i [ title "Forward", classList [ ("fa fa-angle-right", True) ] ] [] ]
+      makeTool "Forward" "angle-right"
+        <| mergeAttributes "sub-control-forward" False attributes
 
     Backward attributes ->
-      a (append [ href "#", classList [ ("sub-control-backward", True) ] ] attributes)
-      [ i [ title "Backward", classList [ ("fa fa-angle-left", True) ] ] [] ]
+      makeTool "Backward" "angle-left"
+        <| mergeAttributes "sub-control-backward" False attributes
+
+    Theme attributes active ->
+      makeTool "Theme" "paint-brush"
+        <| mergeAttributes "sub-control-theme" active attributes      
  
 view : Tools -> Html
 view tools =

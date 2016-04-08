@@ -7,7 +7,8 @@ import Html.Attributes exposing (classList, href, title)
 import Html.Events exposing (onClick)
 import Keyboard
 import Maybe
-import StartApp
+import Runner
+import Signal.Stream exposing (Stream)
 import Task
 
 import Component.Deck exposing (Deck)
@@ -21,6 +22,8 @@ import ElmDeck exposing (..)
 type alias State =
   { deck : Deck
   , editor : Editor
+  , theme : String
+  , themeMenu : Bool
   , fullscreen : FullscreenState
   }
 
@@ -29,6 +32,8 @@ type alias State =
 type Action =
   NoOp
   | LoadDeck Deck
+  | SetTheme String
+  | ToggleThemeMenu
   | SetFullscreen FullscreenState
   | DeckAction Component.Deck.Action
   | SlideAction Component.Slide.Action
@@ -48,7 +53,7 @@ init =
     (deck, effect) = Component.Deck.init "My New Deck"
     editor = Editor False False
   in
-    ( State deck editor False
+    ( State deck editor "magula" False False
     , Effects.map generalizeDeckAction effect
     )
 
@@ -61,6 +66,12 @@ update action state =
 
     LoadDeck deck ->
       ( { state | deck = deck }, Effects.none )
+
+    ToggleThemeMenu ->
+      ( { state | themeMenu = (not state.themeMenu) }, Effects.none )
+
+    SetTheme theme ->
+      ( { state | theme = theme }, Effects.none )
 
     SetFullscreen isEnabled ->
       ( { state | fullscreen = isEnabled }, Effects.none )
@@ -113,28 +124,61 @@ update action state =
 view : Signal.Address Action -> State -> Html
 view address state =
   let
-    deck = Component.Deck.view (Signal.forwardTo address DeckAction) (state.deck)
-    editor = Component.Editor.view (Signal.forwardTo address EditorAction) (state.editor, state.deck)
+    singleton x = [x]
+
+    deck =
+      Component.Deck.view (Signal.forwardTo address DeckAction) (state.deck)
+    editor =
+      Component.Editor.view (Signal.forwardTo address EditorAction) (state.editor, state.deck)
+    theme =
+      Component.Editor.viewTheme state.theme
+
+    currentThemeMarker theme =
+      if (theme == state.theme) then
+        i [ classList [ ("fa fa-fw fa-check", True)] ] []
+      else
+        i [ classList [ ("fa fa-fw", True) ] ] [ text " " ]
+
+    themeToLi theme =
+      li [ classList [ ("theme", True) ]
+      , onClick address (SetTheme theme)
+      ] [ currentThemeMarker theme
+      , span [ classList [ ("theme-label", True) ] ] [ text theme ] 
+      ]
+
+    showThemeMenu =
+      (not state.editor.editing) && state.themeMenu
+
+    themeMenu =
+      div [ classList [ ("theme-menu", True), ("hidden", (not showThemeMenu)) ] ]
+      [ ul [ classList [ ("theme-list", True) ] ]
+        <| List.map themeToLi Component.Editor.themes ]
+
     tools =
-      [ Component.Tools.Edit [ onClick address (EditorAction Component.Editor.ToggleEditing) ]
-      , Component.Tools.Fullscreen []
+      [ Component.Tools.Theme [ onClick address ToggleThemeMenu ] showThemeMenu
+
+      , Component.Tools.Edit
+        [ onClick address (EditorAction Component.Editor.ToggleEditing) ]
+        state.editor.editing
+      , Component.Tools.Fullscreen [] False
       ]
   in
     div [ classList [ ("app-container", True), ("is-editing", state.editor.editing) ] ]
-    [ editor
+    [ theme
+    , editor
     , deck
-    , div [ classList [ ("sub-controls-wrapper", True) ] ]
-      [ (Component.Tools.view tools) ]
+    , div [ classList [ ("sub-controls-wrapper", True) ] ] [ (Component.Tools.view tools) ]
+    , themeMenu
     ]
 
 -- Runner
 
 app =
-  StartApp.start
+  Runner.start
     { init = init
     , update = update
     , view = view
-    , inputs = []
+    , inputs = [ traverse ]
     }
 
 main =
@@ -144,19 +188,28 @@ main =
 
 traverse : Signal Action
 traverse =
-  let
+  let 
     keyToAction key =
       case key of
         97 ->
-          DeckAction Component.Deck.Backward
+          Just (DeckAction Component.Deck.Backward)
+
         100 ->
-          DeckAction Component.Deck.Forward
+          Just (DeckAction Component.Deck.Forward)
+
         115 ->
-          DeckAction Component.Deck.AddSlide
+          Just (DeckAction Component.Deck.AddSlide)
+
+        101 ->
+          Just (EditorAction Component.Editor.ToggleEditing)
+
+        116 ->
+          Just (ToggleThemeMenu)
+
         _ ->
-          DeckAction Component.Deck.NoOp
+          Nothing
   in
-    Signal.map keyToAction Keyboard.presses
+    Signal.filterMap keyToAction NoOp Keyboard.presses
 
 -- Tasks
 
